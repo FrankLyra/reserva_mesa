@@ -16,14 +16,16 @@
 .admin-header h1,
 .section-title h2,
 .event-form h2,
-.event-item h3 {
+.event-item h3,
+.reservation-item h3 {
   margin: 0;
   letter-spacing: 0;
 }
 
 .admin-header p,
 .section-title span,
-.event-item p {
+.event-item p,
+.reservation-item p {
   color: var(--muted);
   margin: 4px 0 0;
 }
@@ -41,7 +43,8 @@
 }
 
 .event-form,
-.events-list {
+.events-list,
+.reservations-panel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -77,17 +80,78 @@ dt {
   gap: 12px;
 }
 
-.event-item {
+.event-item,
+.reservation-item {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
 }
 
-.event-item dl {
+.event-item dl,
+.reservation-item dl {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   margin: 14px 0 0;
+}
+
+.reservations-panel {
+  margin-top: 18px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.empty-state {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  padding: 24px;
+  text-align: center;
+}
+
+.reservation-list {
+  display: grid;
+  gap: 12px;
+}
+
+.reservation-item header,
+.reservation-item footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reservation-item footer {
+  border-top: 1px solid var(--line);
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.status {
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.status-pendente {
+  background: var(--yellow);
+}
+
+.status-pago {
+  background: var(--green);
+}
+
+.status-cancelado {
+  background: var(--red);
 }
 
 dd {
@@ -97,13 +161,16 @@ dd {
 
 @media (max-width: 880px) {
   .admin-header,
-  .admin-header nav {
+  .admin-header nav,
+  .reservation-item header,
+  .reservation-item footer {
     align-items: stretch;
     flex-direction: column;
   }
 
   .admin-layout,
-  .event-item dl {
+  .event-item dl,
+  .reservation-item dl {
     grid-template-columns: 1fr;
   }
 }

@@ -2,7 +2,7 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { Evento, EventoRequest } from '../../core/api.types';
+import { AdminReservaResponse, Evento, EventoRequest, StatusPagamento } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
 import { ReservaApiService } from '../../core/reserva-api.service';
 
@@ -20,8 +20,11 @@ export class AdminDashboardComponent implements OnInit {
   private readonly router = inject(Router);
 
   eventos: Evento[] = [];
+  reservas: AdminReservaResponse[] = [];
+  filtroStatus: StatusPagamento | 'TODAS' = 'PENDENTE';
   mensagem = '';
   salvando = false;
+  reservaEmAcao?: number;
 
   form = this.fb.nonNullable.group({
     nome: ['', [Validators.required]],
@@ -43,6 +46,7 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
     this.carregarEventos();
+    this.carregarReservas();
   }
 
   criarEvento(): void {
@@ -85,10 +89,70 @@ export class AdminDashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  reservasFiltradas(): AdminReservaResponse[] {
+    if (this.filtroStatus === 'TODAS') {
+      return this.reservas;
+    }
+    return this.reservas.filter(reserva => reserva.statusPagamento === this.filtroStatus);
+  }
+
+  filtrar(status: StatusPagamento | 'TODAS'): void {
+    this.filtroStatus = status;
+  }
+
+  confirmarPagamento(reserva: AdminReservaResponse): void {
+    this.reservaEmAcao = reserva.id;
+    this.reservaApi.confirmarPagamento(reserva.id).subscribe({
+      next: atualizada => {
+        this.atualizarReserva(atualizada);
+        this.reservaEmAcao = undefined;
+        this.mensagem = `Pagamento da reserva #${atualizada.id} confirmado.`;
+      },
+      error: () => {
+        this.reservaEmAcao = undefined;
+        this.mensagem = 'Nao foi possivel confirmar o pagamento.';
+      }
+    });
+  }
+
+  cancelarReserva(reserva: AdminReservaResponse): void {
+    this.reservaEmAcao = reserva.id;
+    this.reservaApi.cancelarReserva(reserva.id).subscribe({
+      next: atualizada => {
+        this.atualizarReserva(atualizada);
+        this.reservaEmAcao = undefined;
+        this.mensagem = `Reserva #${atualizada.id} cancelada.`;
+      },
+      error: () => {
+        this.reservaEmAcao = undefined;
+        this.mensagem = 'Nao foi possivel cancelar a reserva.';
+      }
+    });
+  }
+
+  classeStatus(status: StatusPagamento): string {
+    return `status status-${status.toLowerCase()}`;
+  }
+
+  acaoBloqueada(reserva: AdminReservaResponse): boolean {
+    return this.reservaEmAcao === reserva.id;
+  }
+
   private carregarEventos(): void {
     this.reservaApi.listarEventos().subscribe({
       next: eventos => this.eventos = eventos,
       error: () => this.mensagem = 'Nao foi possivel carregar os eventos.'
     });
+  }
+
+  private carregarReservas(): void {
+    this.reservaApi.listarReservasAdmin().subscribe({
+      next: reservas => this.reservas = reservas,
+      error: () => this.mensagem = 'Nao foi possivel carregar as reservas.'
+    });
+  }
+
+  private atualizarReserva(atualizada: AdminReservaResponse): void {
+    this.reservas = this.reservas.map(reserva => reserva.id === atualizada.id ? atualizada : reserva);
   }
 }

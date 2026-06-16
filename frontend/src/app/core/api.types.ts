@@ -1,5 +1,6 @@
 export type TipoAluguel = 'MIN_UM_DIA' | 'TODOS_OS_DIAS';
 export type MesaStatus = 'LIVRE' | 'PARCIAL' | 'OCUPADA';
+export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'CANCELADO';
 
 export interface EventoRequest {
   nome: string;
@@ -42,7 +43,24 @@ export interface ReservaResponse {
   usuarioId: number;
   datasReservadas: string[];
   valorTotal: number;
-  statusPagamento: 'PENDENTE' | 'PAGO' | 'CANCELADO';
+  statusPagamento: StatusPagamento;
   pixCopiaECola: string;
   pixExpiraEm: string;
+}
+
+export interface AdminReservaResponse {
+  id: number;
+  eventoId: number;
+  eventoNome: string;
+  mesaId: number;
+  numeroMesa: number;
+  usuarioId: number;
+  usuarioNome: string;
+  usuarioEmail: string;
+  datasReservadas: string[];
+  valorTotal: number;
+  statusPagamento: StatusPagamento;
+  pixCopiaECola: string;
+  pixExpiraEm: string;
+  criadaEm: string;
 }

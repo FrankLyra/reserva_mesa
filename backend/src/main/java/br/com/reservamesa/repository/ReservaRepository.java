@@ -15,6 +15,17 @@ import jakarta.persistence.LockModeType;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
+    @Query("""
+        select distinct r
+        from Reserva r
+        join fetch r.mesa m
+        join fetch m.evento
+        join fetch r.usuario
+        left join fetch r.datasReservadas
+        order by r.criadaEm desc
+    """)
+    List<Reserva> findAllForAdmin();
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
         select distinct r

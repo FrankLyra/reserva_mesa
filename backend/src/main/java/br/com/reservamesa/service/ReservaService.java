@@ -1,5 +1,6 @@
 package br.com.reservamesa.service;
 
+import br.com.reservamesa.api.dto.AdminReservaResponse;
 import br.com.reservamesa.api.dto.DisponibilidadeResponse;
 import br.com.reservamesa.api.dto.ReservaRequest;
 import br.com.reservamesa.api.dto.ReservaResponse;
@@ -82,9 +83,41 @@ public class ReservaService {
         return toResponse(reservaRepository.save(reserva));
     }
 
+    @Transactional(readOnly = true)
+    public List<AdminReservaResponse> listarReservasAdmin() {
+        return reservaRepository.findAllForAdmin().stream()
+            .map(this::toAdminResponse)
+            .toList();
+    }
+
+    @Transactional
+    public AdminReservaResponse confirmarPagamento(Long reservaId) {
+        Reserva reserva = buscarReserva(reservaId);
+        if (reserva.getStatusPagamento() == StatusPagamento.CANCELADO) {
+            throw new IllegalArgumentException("Reserva cancelada nao pode ser confirmada");
+        }
+        reserva.setStatusPagamento(StatusPagamento.PAGO);
+        return toAdminResponse(reservaRepository.save(reserva));
+    }
+
+    @Transactional
+    public AdminReservaResponse cancelarReserva(Long reservaId) {
+        Reserva reserva = buscarReserva(reservaId);
+        if (reserva.getStatusPagamento() == StatusPagamento.PAGO) {
+            throw new IllegalArgumentException("Reserva paga nao pode ser cancelada manualmente");
+        }
+        reserva.setStatusPagamento(StatusPagamento.CANCELADO);
+        return toAdminResponse(reservaRepository.save(reserva));
+    }
+
     private Mesa buscarMesa(Long mesaId) {
         return mesaRepository.findById(mesaId)
             .orElseThrow(() -> new IllegalArgumentException("Mesa nao encontrada"));
+    }
+
+    private Reserva buscarReserva(Long reservaId) {
+        return reservaRepository.findById(reservaId)
+            .orElseThrow(() -> new IllegalArgumentException("Reserva nao encontrada"));
     }
 
     private List<LocalDate> buscarDatasConflitantes(Long mesaId, List<LocalDate> datas, boolean lock) {
@@ -135,6 +168,25 @@ public class ReservaService {
             reserva.getStatusPagamento(),
             reserva.getPixCopiaECola(),
             reserva.getPixExpiraEm()
+        );
+    }
+
+    private AdminReservaResponse toAdminResponse(Reserva reserva) {
+        return new AdminReservaResponse(
+            reserva.getId(),
+            reserva.getMesa().getEvento().getId(),
+            reserva.getMesa().getEvento().getNome(),
+            reserva.getMesa().getId(),
+            reserva.getMesa().getNumeroMesa(),
+            reserva.getUsuario().getId(),
+            reserva.getUsuario().getNome(),
+            reserva.getUsuario().getEmail(),
+            reserva.getDatasReservadas(),
+            reserva.getValorTotal(),
+            reserva.getStatusPagamento(),
+            reserva.getPixCopiaECola(),
+            reserva.getPixExpiraEm(),
+            reserva.getCriadaEm()
         );
     }
 }

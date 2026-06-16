@@ -88,7 +88,7 @@ Admin:   admin@reservas.com / admin123
 Cliente: cliente@reservas.com / cliente123
 ```
 
-O admin entra em `/admin` para criar eventos. O cliente entra em `/reservas` para reservar mesas.
+O admin entra em `/admin` para criar eventos, filtrar reservas, confirmar pagamentos manualmente e cancelar reservas pendentes. O cliente entra em `/reservas` para reservar mesas.
 
 ## Endpoints principais
 
@@ -99,6 +99,9 @@ O admin entra em `/admin` para criar eventos. O cliente entra em `/reservas` par
 - `GET /api/mesas/evento/{eventoId}/status`
 - `POST /api/reservas/verificar-disponibilidade`
 - `POST /api/reservas`
+- `GET /api/admin/reservas`
+- `PATCH /api/admin/reservas/{id}/confirmar-pagamento`
+- `PATCH /api/admin/reservas/{id}/cancelar`
 
 ## Regra de overbooking
 
