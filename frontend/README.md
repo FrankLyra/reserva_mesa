@@ -7,4 +7,4 @@ npm install
 npm start
 ```
 
-O backend deve estar em `http://localhost:8080`.
+O backend deve estar em `http://localhost:8081`.
