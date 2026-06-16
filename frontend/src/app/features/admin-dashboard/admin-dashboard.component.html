@@ -150,7 +150,7 @@
           </button>
           <button type="button"
                   class="btn btn-outline-danger"
-                  [disabled]="reserva.statusPagamento !== 'PENDENTE' || acaoBloqueada(reserva)"
+                  [disabled]="!podeCancelar(reserva) || acaoBloqueada(reserva)"
                   (click)="cancelarReserva(reserva)">
             Cancelar reserva
           </button>

@@ -150,8 +150,8 @@ public class ReservaService {
     @Transactional
     public AdminReservaResponse cancelarReserva(Long reservaId) {
         Reserva reserva = buscarReserva(reservaId);
-        if (reserva.getStatusPagamento() == StatusPagamento.PAGO) {
-            throw new IllegalArgumentException("Reserva paga nao pode ser cancelada manualmente");
+        if (reserva.getStatusPagamento() == StatusPagamento.CANCELADO) {
+            throw new IllegalArgumentException("Reserva ja esta cancelada");
         }
         reserva.setStatusPagamento(StatusPagamento.CANCELADO);
         return toAdminResponse(reservaRepository.save(reserva));

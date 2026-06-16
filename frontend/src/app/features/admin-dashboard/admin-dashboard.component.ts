@@ -22,7 +22,7 @@ export class AdminDashboardComponent implements OnInit {
 
   eventos: Evento[] = [];
   reservas: AdminReservaResponse[] = [];
-  filtroStatus: StatusPagamento | 'TODAS' = 'PENDENTE';
+  filtroStatus: StatusPagamento | 'TODAS' = 'TODAS';
   mensagem = '';
   salvando = false;
   reservaEmAcao?: number;
@@ -137,6 +137,10 @@ export class AdminDashboardComponent implements OnInit {
 
   acaoBloqueada(reserva: AdminReservaResponse): boolean {
     return this.reservaEmAcao === reserva.id;
+  }
+
+  podeCancelar(reserva: AdminReservaResponse): boolean {
+    return reserva.statusPagamento !== 'CANCELADO';
   }
 
   private carregarEventos(): void {
