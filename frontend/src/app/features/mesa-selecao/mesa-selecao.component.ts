@@ -1,7 +1,7 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Evento, MesaStatusResponse, ReservaResponse } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
@@ -157,16 +157,14 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
   }
 
   private inicializar(): void {
-    const auth$ = localStorage.getItem('reserva_mesas_token') ? of(null) : this.authApi.loginClienteTeste();
+    const auth$: Observable<unknown> = localStorage.getItem('reserva_mesas_token') ? of(null) : this.authApi.loginClienteTeste();
     auth$.pipe(
-      switchMap(() => forkJoin({
-        eventos: this.reservaApi.listarEventos()
-      })),
+      switchMap(() => this.reservaApi.listarEventos()),
       catchError(() => {
         this.mensagem = 'Nao foi possivel carregar os dados. Inicie o backend em http://localhost:8080.';
-        return of({ eventos: [] as Evento[] });
+        return of([] as Evento[]);
       })
-    ).subscribe(({ eventos }) => {
+    ).subscribe((eventos) => {
       this.eventos = eventos;
       this.carregando = false;
       if (eventos.length > 0) {
