@@ -48,6 +48,10 @@ public class MesaService {
                 reserva -> reserva.getMesa().getId(),
                 Collectors.flatMapping(reserva -> reserva.getDatasReservadas().stream(), Collectors.toSet())
             ));
+        Set<Long> mesasPagas = reservas.stream()
+            .filter(reserva -> reserva.getStatusPagamento() == StatusPagamento.PAGO)
+            .map(reserva -> reserva.getMesa().getId())
+            .collect(Collectors.toSet());
 
         return mesas.stream()
             .map(mesa -> {
@@ -57,18 +61,18 @@ public class MesaService {
                 return new MesaStatusResponse(
                     mesa.getId(),
                     mesa.getNumeroMesa(),
-                    calcularStatus(ocupadas.size(), diasEvento.size()),
+                    calcularStatus(ocupadas.size(), diasEvento.size(), mesasPagas.contains(mesa.getId())),
                     ocupadas
                 );
             })
             .toList();
     }
 
-    private String calcularStatus(int ocupadas, int totalDias) {
+    private String calcularStatus(int ocupadas, int totalDias, boolean temPagamentoConfirmado) {
         if (ocupadas == 0) {
             return "LIVRE";
         }
-        if (ocupadas == totalDias) {
+        if (temPagamentoConfirmado || ocupadas == totalDias) {
             return "OCUPADA";
         }
         return "PARCIAL";
