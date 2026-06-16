@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from './environment';
-import { DisponibilidadeResponse, Evento, MesaStatusResponse, ReservaResponse } from './api.types';
+import { DisponibilidadeResponse, Evento, EventoRequest, MesaStatusResponse, ReservaResponse } from './api.types';
 
 @Injectable({ providedIn: 'root' })
 export class ReservaApiService {
@@ -12,6 +12,10 @@ export class ReservaApiService {
 
   listarEventos(): Observable<Evento[]> {
     return this.http.get<Evento[]>(`${this.apiUrl}/eventos`);
+  }
+
+  criarEvento(request: EventoRequest): Observable<Evento> {
+    return this.http.post<Evento>(`${this.apiUrl}/admin/eventos`, request);
   }
 
   listarMesas(eventoId: number): Observable<MesaStatusResponse[]> {

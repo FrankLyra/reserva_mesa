@@ -71,7 +71,24 @@ URL:
 http://localhost:4200
 ```
 
-O componente principal faz login automatico com o usuario `cliente@reservas.com` quando nao existe token no `localStorage`.
+O acesso passa pela tela de login e salva o token JWT no `localStorage`.
+
+## Acesso ao sistema
+
+Abra:
+
+```text
+http://localhost:4200/login
+```
+
+Credenciais:
+
+```text
+Admin:   admin@reservas.com / admin123
+Cliente: cliente@reservas.com / cliente123
+```
+
+O admin entra em `/admin` para criar eventos. O cliente entra em `/reservas` para reservar mesas.
 
 ## Endpoints principais
 

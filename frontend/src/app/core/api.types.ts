@@ -1,6 +1,16 @@
 export type TipoAluguel = 'MIN_UM_DIA' | 'TODOS_OS_DIAS';
 export type MesaStatus = 'LIVRE' | 'PARCIAL' | 'OCUPADA';
 
+export interface EventoRequest {
+  nome: string;
+  dataInicio: string;
+  dataFim: string;
+  descricao: string;
+  quantidadeMesas: number;
+  tipoAluguel: TipoAluguel;
+  precoPorDia: number;
+}
+
 export interface Evento {
   id: number;
   nome: string;

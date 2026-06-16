@@ -1,11 +1,11 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, switchMap } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
+import { of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Evento, MesaStatusResponse, ReservaResponse } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
-import { environment } from '../../core/environment';
 import { ReservaApiService } from '../../core/reserva-api.service';
 
 type DiaStatus = 'OCUPADO' | 'DISPONIVEL' | 'SELECIONADO';
@@ -13,7 +13,7 @@ type DiaStatus = 'OCUPADO' | 'DISPONIVEL' | 'SELECIONADO';
 @Component({
   selector: 'app-mesa-selecao',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, CurrencyPipe, DatePipe, RouterLink],
   templateUrl: './mesa-selecao.component.html',
   styleUrl: './mesa-selecao.component.css'
 })
@@ -32,7 +32,8 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly reservaApi: ReservaApiService,
-    private readonly authApi: AuthApiService
+    private readonly authApi: AuthApiService,
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
@@ -89,7 +90,12 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
           this.mensagem = this.mensagemConflito(response.datasConflitantes);
           return of(undefined);
         }
-        return this.reservaApi.criarReserva(this.mesaSelecionada!.mesaId, environment.clienteTesteId, datas);
+        const usuarioId = this.authApi.usuarioAtual()?.usuarioId;
+        if (!usuarioId) {
+          this.router.navigate(['/login']);
+          return of(undefined);
+        }
+        return this.reservaApi.criarReserva(this.mesaSelecionada!.mesaId, usuarioId, datas);
       }),
       catchError((error: HttpErrorResponse) => {
         const conflitos = this.extrairConflitos(error);
@@ -156,12 +162,24 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     return Math.min(6, Math.max(2, Math.ceil(Math.sqrt(this.mesas.length || 1))));
   }
 
+  usuarioNome(): string {
+    return this.authApi.usuarioAtual()?.nome ?? '';
+  }
+
+  sair(): void {
+    this.authApi.logout();
+    this.router.navigate(['/login']);
+  }
+
   private inicializar(): void {
-    const auth$: Observable<unknown> = localStorage.getItem('reserva_mesas_token') ? of(null) : this.authApi.loginClienteTeste();
-    auth$.pipe(
-      switchMap(() => this.reservaApi.listarEventos()),
+    if (!this.authApi.estaAutenticado()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.reservaApi.listarEventos().pipe(
       catchError(() => {
-        this.mensagem = 'Nao foi possivel carregar os dados. Inicie o backend em http://localhost:8080.';
+        this.mensagem = 'Nao foi possivel carregar os dados. Inicie o backend em http://localhost:8081.';
         return of([] as Evento[]);
       })
     ).subscribe((eventos) => {

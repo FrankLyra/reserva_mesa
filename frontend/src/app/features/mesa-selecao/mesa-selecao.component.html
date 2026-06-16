@@ -2,16 +2,20 @@
   <header class="topbar">
     <div>
       <h1>Reserva de Mesas</h1>
-      <p>Selecione o evento, escolha a mesa e confirme as datas antes do PIX.</p>
+      <p>{{ usuarioNome() }} selecionando mesa, datas e pagamento PIX.</p>
     </div>
 
-    <select class="form-select event-select"
-            aria-label="Selecionar evento"
-            [disabled]="eventos.length === 0"
-            [value]="eventoSelecionado?.id"
-            (change)="selecionarEvento(eventos[$any($event.target).selectedIndex])">
-      <option *ngFor="let evento of eventos" [value]="evento.id">{{ evento.nome }}</option>
-    </select>
+    <div class="topbar-actions">
+      <a class="btn btn-outline-primary" routerLink="/admin">Admin</a>
+      <select class="form-select event-select"
+              aria-label="Selecionar evento"
+              [disabled]="eventos.length === 0"
+              [value]="eventoSelecionado?.id"
+              (change)="selecionarEvento(eventos[$any($event.target).selectedIndex])">
+        <option *ngFor="let evento of eventos" [value]="evento.id">{{ evento.nome }}</option>
+      </select>
+      <button type="button" class="btn btn-outline-dark" (click)="sair()">Sair</button>
+    </div>
   </header>
 
   <section *ngIf="mensagem" class="alert alert-info status-message" role="status">

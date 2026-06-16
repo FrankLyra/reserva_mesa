@@ -1,0 +1,96 @@
+<main class="admin-page">
+  <header class="admin-header">
+    <div>
+      <h1>Painel Administrativo</h1>
+      <p>{{ usuarioNome() }} gerenciando eventos e mesas.</p>
+    </div>
+    <nav>
+      <a class="btn btn-outline-primary" routerLink="/reservas">Reservas</a>
+      <button type="button" class="btn btn-outline-dark" (click)="sair()">Sair</button>
+    </nav>
+  </header>
+
+  <section *ngIf="mensagem" class="alert alert-info">{{ mensagem }}</section>
+
+  <section class="admin-layout">
+    <form class="event-form" [formGroup]="form" (ngSubmit)="criarEvento()" novalidate>
+      <h2>Novo evento</h2>
+
+      <label>
+        <span>Nome</span>
+        <input class="form-control" type="text" formControlName="nome">
+      </label>
+
+      <div class="date-grid">
+        <label>
+          <span>Inicio</span>
+          <input class="form-control" type="date" formControlName="dataInicio">
+        </label>
+        <label>
+          <span>Fim</span>
+          <input class="form-control" type="date" formControlName="dataFim">
+        </label>
+      </div>
+
+      <label>
+        <span>Descricao</span>
+        <textarea class="form-control" rows="3" formControlName="descricao"></textarea>
+      </label>
+
+      <div class="date-grid">
+        <label>
+          <span>Mesas</span>
+          <input class="form-control" type="number" min="1" formControlName="quantidadeMesas">
+        </label>
+        <label>
+          <span>Preco por dia</span>
+          <input class="form-control" type="number" min="0.01" step="0.01" formControlName="precoPorDia">
+        </label>
+      </div>
+
+      <label>
+        <span>Tipo de aluguel</span>
+        <select class="form-select" formControlName="tipoAluguel">
+          <option value="MIN_UM_DIA">Minimo de 1 dia</option>
+          <option value="TODOS_OS_DIAS">Todos os dias do evento</option>
+        </select>
+      </label>
+
+      <button type="submit" class="btn btn-primary" [disabled]="salvando">
+        {{ salvando ? 'Salvando...' : 'Criar evento e mesas' }}
+      </button>
+    </form>
+
+    <section class="events-list">
+      <div class="section-title">
+        <h2>Eventos cadastrados</h2>
+        <span>{{ eventos.length }} evento(s)</span>
+      </div>
+
+      <article *ngFor="let evento of eventos" class="event-item">
+        <div>
+          <h3>{{ evento.nome }}</h3>
+          <p>{{ evento.descricao }}</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Periodo</dt>
+            <dd>{{ evento.dataInicio | date:'dd/MM/yyyy' }} a {{ evento.dataFim | date:'dd/MM/yyyy' }}</dd>
+          </div>
+          <div>
+            <dt>Mesas</dt>
+            <dd>{{ evento.quantidadeMesas }}</dd>
+          </div>
+          <div>
+            <dt>Preco</dt>
+            <dd>{{ evento.precoPorDia | currency:'BRL':'symbol':'1.2-2' }}</dd>
+          </div>
+          <div>
+            <dt>Regra</dt>
+            <dd>{{ evento.tipoAluguel === 'TODOS_OS_DIAS' ? 'Pacote completo' : 'Minimo de 1 dia' }}</dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+  </section>
+</main>
