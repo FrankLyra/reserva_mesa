@@ -4,7 +4,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Evento, MesaStatusResponse, ReservaLoteResponse } from '../../core/api.types';
+import { Evento, MesaStatusResponse, ReservaLoteResponse, SetorMesa } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
 import { ReservaApiService } from '../../core/reserva-api.service';
 
@@ -25,6 +25,7 @@ interface CarrinhoItem {
   styleUrl: './mesa-selecao.component.css'
 })
 export class MesaSelecaoComponent implements OnInit, OnDestroy {
+  setores: SetorMesa[] = ['AMARELO', 'VERMELHO', 'AZUL', 'VERDE'];
   eventos: Evento[] = [];
   eventoSelecionado?: Evento;
   mesas: MesaStatusResponse[] = [];
@@ -185,6 +186,14 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     return `mesa setor-${mesa.setor.toLowerCase()} mesa-${mesa.status.toLowerCase()}`;
   }
 
+  mesasPorSetor(setor: SetorMesa): MesaStatusResponse[] {
+    return this.mesas.filter(mesa => mesa.setor === setor);
+  }
+
+  classeBlocoSetor(setor: SetorMesa): string {
+    return `sector-block sector-block-${setor.toLowerCase()}`;
+  }
+
   classeDia(data: string): string {
     return `dia dia-${this.diaStatus(data).toLowerCase()}`;
   }
@@ -199,10 +208,6 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
 
   datasOrdenadas(): string[] {
     return Array.from(this.datasSelecionadas).sort();
-  }
-
-  gridColumns(): number {
-    return Math.min(6, Math.max(2, Math.ceil(Math.sqrt(this.mesas.length || 1))));
   }
 
   usuarioNome(): string {

@@ -56,18 +56,27 @@
     <section class="tables-panel">
       <div class="section-title">
         <h2>Mesas</h2>
-        <span>{{ mesas.length }} disponiveis no mapa</span>
+        <span>{{ mesas.length }} mesas divididas por setor</span>
       </div>
 
-      <div class="mesa-grid" [style.grid-template-columns]="'repeat(' + gridColumns() + ', minmax(68px, 1fr))'">
-        <button *ngFor="let mesa of mesas"
-                type="button"
-                [class]="classeMesa(mesa)"
-                [class.active]="mesaSelecionada?.mesaId === mesa.mesaId"
-                (click)="selecionarMesa(mesa)">
-          <strong>{{ mesa.numeroMesa }}</strong>
-          <small>{{ mesa.setor }} - {{ mesa.status }}</small>
-        </button>
+      <div class="sector-map">
+        <section *ngFor="let setor of setores" [class]="classeBlocoSetor(setor)">
+          <header>
+            <h3>{{ setor }}</h3>
+            <span>{{ mesasPorSetor(setor).length }} mesa(s)</span>
+          </header>
+
+          <div class="mesa-grid">
+            <button *ngFor="let mesa of mesasPorSetor(setor)"
+                    type="button"
+                    [class]="classeMesa(mesa)"
+                    [class.active]="mesaSelecionada?.mesaId === mesa.mesaId"
+                    (click)="selecionarMesa(mesa)">
+              <strong>{{ mesa.numeroMesa }}</strong>
+              <small>{{ mesa.status }}</small>
+            </button>
+          </div>
+        </section>
       </div>
     </section>
 
