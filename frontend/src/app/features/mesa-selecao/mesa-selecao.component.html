@@ -94,8 +94,43 @@
           <strong>{{ total() | currency:'BRL':'symbol':'1.2-2' }}</strong>
         </div>
         <button type="button"
+                class="btn btn-outline-primary"
+                [disabled]="datasSelecionadas.size === 0"
+                (click)="adicionarAoCarrinho()">
+          Adicionar ao carrinho
+        </button>
+      </footer>
+    </section>
+
+    <section class="cart-panel">
+      <div class="section-title">
+        <h2>Carrinho</h2>
+        <span>{{ carrinho.length }} mesa(s)</span>
+      </div>
+
+      <div class="cart-empty" *ngIf="carrinho.length === 0">
+        Escolha uma mesa, selecione as datas e adicione ao carrinho.
+      </div>
+
+      <article class="cart-item" *ngFor="let item of carrinho">
+        <div>
+          <strong>Mesa {{ item.numeroMesa }}</strong>
+          <span>{{ item.datasReservadas.join(', ') }}</span>
+        </div>
+        <div class="cart-actions">
+          <strong>{{ item.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</strong>
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="removerDoCarrinho(item.mesaId)">Remover</button>
+        </div>
+      </article>
+
+      <footer class="checkout-bar">
+        <div>
+          <span>Total do carrinho</span>
+          <strong>{{ totalCarrinho() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <button type="button"
                 class="btn btn-primary"
-                [disabled]="verificando || datasSelecionadas.size === 0"
+                [disabled]="verificando || carrinho.length === 0"
                 (click)="verificarEContinuar()">
           {{ verificando ? 'Validando...' : 'Confirmar e Pagar via PIX' }}
         </button>
@@ -113,12 +148,12 @@
 
     <dl class="pix-summary">
       <div>
-        <dt>Mesa</dt>
-        <dd>{{ reservaPix.numeroMesa }}</dd>
+        <dt>Mesas</dt>
+        <dd>{{ reservaPix.reservas.length }}</dd>
       </div>
       <div>
-        <dt>Datas</dt>
-        <dd>{{ reservaPix.datasReservadas.join(', ') }}</dd>
+        <dt>Reservas</dt>
+        <dd>#{{ reservaPix.reservas[0].id }} a #{{ reservaPix.reservas[reservaPix.reservas.length - 1].id }}</dd>
       </div>
       <div>
         <dt>Total</dt>

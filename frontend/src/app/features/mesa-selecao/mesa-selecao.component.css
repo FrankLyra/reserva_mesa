@@ -61,7 +61,8 @@
 
 .summary-panel,
 .tables-panel,
-.details-panel {
+.details-panel,
+.cart-panel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -162,6 +163,10 @@ dd {
   grid-column: 2;
 }
 
+.cart-panel {
+  grid-column: 2;
+}
+
 .agenda {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
@@ -204,6 +209,40 @@ dd {
 
 .checkout-bar strong {
   font-size: 1.35rem;
+}
+
+.cart-empty {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  padding: 18px;
+  text-align: center;
+}
+
+.cart-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+  padding: 12px;
+}
+
+.cart-item span,
+.cart-item strong {
+  display: block;
+}
+
+.cart-item span {
+  color: var(--muted);
+}
+
+.cart-actions {
+  align-items: end;
+  display: grid;
+  gap: 8px;
+  text-align: right;
 }
 
 .pix-backdrop {
@@ -278,7 +317,17 @@ dd {
     position: static;
   }
 
-  .details-panel {
+  .details-panel,
+  .cart-panel {
     grid-column: auto;
+  }
+
+  .cart-item {
+    flex-direction: column;
+  }
+
+  .cart-actions {
+    align-items: stretch;
+    text-align: left;
   }
 }

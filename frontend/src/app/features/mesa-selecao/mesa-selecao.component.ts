@@ -2,13 +2,20 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
-import { of, switchMap } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Evento, MesaStatusResponse, ReservaResponse } from '../../core/api.types';
+import { Evento, MesaStatusResponse, ReservaLoteResponse } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
 import { ReservaApiService } from '../../core/reserva-api.service';
 
 type DiaStatus = 'OCUPADO' | 'DISPONIVEL' | 'SELECIONADO';
+
+interface CarrinhoItem {
+  mesaId: number;
+  numeroMesa: number;
+  datasReservadas: string[];
+  valorTotal: number;
+}
 
 @Component({
   selector: 'app-mesa-selecao',
@@ -23,7 +30,8 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
   mesas: MesaStatusResponse[] = [];
   mesaSelecionada?: MesaStatusResponse;
   datasSelecionadas = new Set<string>();
-  reservaPix?: ReservaResponse;
+  carrinho: CarrinhoItem[] = [];
+  reservaPix?: ReservaLoteResponse;
   mensagem = '';
   carregando = true;
   verificando = false;
@@ -48,6 +56,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     this.eventoSelecionado = evento;
     this.mesaSelecionada = undefined;
     this.datasSelecionadas.clear();
+    this.carrinho = [];
     this.carregarMesas(evento.id);
   }
 
@@ -75,33 +84,62 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     }
   }
 
-  verificarEContinuar(): void {
+  adicionarAoCarrinho(): void {
     if (!this.mesaSelecionada || this.datasSelecionadas.size === 0) {
       this.mensagem = 'Selecione ao menos uma data disponivel.';
       return;
     }
 
+    const item: CarrinhoItem = {
+      mesaId: this.mesaSelecionada.mesaId,
+      numeroMesa: this.mesaSelecionada.numeroMesa,
+      datasReservadas: this.datasOrdenadas(),
+      valorTotal: this.total()
+    };
+    this.carrinho = [
+      ...this.carrinho.filter(atual => atual.mesaId !== item.mesaId),
+      item
+    ].sort((a, b) => a.numeroMesa - b.numeroMesa);
+    this.datasSelecionadas.clear();
+    this.mensagem = `Mesa ${item.numeroMesa} adicionada ao carrinho.`;
+  }
+
+  removerDoCarrinho(mesaId: number): void {
+    this.carrinho = this.carrinho.filter(item => item.mesaId !== mesaId);
+  }
+
+  verificarEContinuar(): void {
+    if (this.carrinho.length === 0) {
+      this.mensagem = 'Adicione ao menos uma mesa ao carrinho.';
+      return;
+    }
+
+    const usuarioId = this.authApi.usuarioAtual()?.usuarioId;
+    if (!usuarioId) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.verificando = true;
-    const datas = this.datasOrdenadas();
-    this.reservaApi.verificarDisponibilidade(this.mesaSelecionada.mesaId, datas).pipe(
-      switchMap(response => {
-        if (!response.disponivel) {
-          this.aplicarConflitos(response.datasConflitantes);
-          this.mensagem = this.mensagemConflito(response.datasConflitantes);
-          return of(undefined);
-        }
-        const usuarioId = this.authApi.usuarioAtual()?.usuarioId;
-        if (!usuarioId) {
-          this.router.navigate(['/login']);
-          return of(undefined);
-        }
-        return this.reservaApi.criarReserva(this.mesaSelecionada!.mesaId, usuarioId, datas);
-      }),
+    this.reservaApi.criarReservasLote(usuarioId, this.carrinho.map(item => ({
+      mesaId: item.mesaId,
+      datasReservadas: item.datasReservadas
+    }))).pipe(
       catchError((error: HttpErrorResponse) => {
         const conflitos = this.extrairConflitos(error);
         if (conflitos.length > 0) {
           this.aplicarConflitos(conflitos);
-          this.mensagem = this.mensagemConflito(conflitos);
+          this.carrinho = this.carrinho
+            .map(item => ({
+              ...item,
+              datasReservadas: item.datasReservadas.filter(data => !conflitos.includes(data))
+            }))
+            .filter(item => item.datasReservadas.length > 0)
+            .map(item => ({
+              ...item,
+              valorTotal: (this.eventoSelecionado?.precoPorDia ?? 0) * item.datasReservadas.length
+            }));
+          this.mensagem = 'Uma ou mais datas acabaram de ser reservadas por outro usuario. Revise o carrinho.';
         } else {
           this.mensagem = 'Nao foi possivel concluir a reserva. Verifique o backend e tente novamente.';
         }
@@ -128,6 +166,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     this.reservaPix = undefined;
     this.pararTimer();
     if (this.eventoSelecionado) {
+      this.carrinho = [];
       this.carregarMesas(this.eventoSelecionado.id);
     }
   }
@@ -152,6 +191,10 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
 
   total(): number {
     return (this.eventoSelecionado?.precoPorDia ?? 0) * this.datasSelecionadas.size;
+  }
+
+  totalCarrinho(): number {
+    return this.carrinho.reduce((total, item) => total + item.valorTotal, 0);
   }
 
   datasOrdenadas(): string[] {
@@ -240,7 +283,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     return Array.isArray(conflitos) ? conflitos : [];
   }
 
-  private abrirPix(reserva: ReservaResponse): void {
+  private abrirPix(reserva: ReservaLoteResponse): void {
     this.reservaPix = reserva;
     this.mensagem = 'Reserva criada. Pague com PIX antes do prazo expirar.';
     this.segundosPix = Math.max(1, Math.floor((new Date(reserva.pixExpiraEm).getTime() - Date.now()) / 1000));

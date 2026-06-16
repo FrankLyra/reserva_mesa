@@ -1,6 +1,8 @@
 package br.com.reservamesa.domain.entity;
 
 import br.com.reservamesa.domain.enums.Role;
+import br.com.reservamesa.domain.enums.SetorMesa;
+import br.com.reservamesa.domain.enums.TipoUsuario;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,6 +38,19 @@ public class Usuario {
 
     @Column(nullable = false)
     private String senha;
+
+    @Column(nullable = false)
+    private String telefone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoUsuario tipoUsuario;
+
+    private String blocoApartamento;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SetorMesa setorMesa;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

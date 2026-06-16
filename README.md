@@ -89,6 +89,7 @@ Cliente: cliente@reservas.com / cliente123
 ```
 
 O admin entra em `/admin` para criar eventos, filtrar reservas, confirmar pagamentos manualmente e cancelar reservas pendentes. O cliente entra em `/reservas` para reservar mesas.
+Novos usuarios podem se cadastrar em `/cadastro` informando e-mail, senha, nome completo, telefone, tipo de usuario, bloco/apartamento para moradores e setor desejado.
 
 ## Endpoints principais
 
@@ -99,6 +100,7 @@ O admin entra em `/admin` para criar eventos, filtrar reservas, confirmar pagame
 - `GET /api/mesas/evento/{eventoId}/status`
 - `POST /api/reservas/verificar-disponibilidade`
 - `POST /api/reservas`
+- `POST /api/reservas/lote`
 - `GET /api/admin/reservas`
 - `PATCH /api/admin/reservas/{id}/confirmar-pagamento`
 - `PATCH /api/admin/reservas/{id}/cancelar`

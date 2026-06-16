@@ -2,6 +2,8 @@ package br.com.reservamesa.api.controller;
 
 import br.com.reservamesa.api.dto.DisponibilidadeRequest;
 import br.com.reservamesa.api.dto.DisponibilidadeResponse;
+import br.com.reservamesa.api.dto.ReservaLoteRequest;
+import br.com.reservamesa.api.dto.ReservaLoteResponse;
 import br.com.reservamesa.api.dto.ReservaRequest;
 import br.com.reservamesa.api.dto.ReservaResponse;
 import br.com.reservamesa.service.ReservaService;
@@ -32,5 +34,11 @@ public class ReservaController {
     @ResponseStatus(HttpStatus.CREATED)
     public ReservaResponse criar(@Valid @RequestBody ReservaRequest request) {
         return reservaService.criarReserva(request);
+    }
+
+    @PostMapping("/lote")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ReservaLoteResponse criarLote(@Valid @RequestBody ReservaLoteRequest request) {
+        return reservaService.criarReservasLote(request);
     }
 }

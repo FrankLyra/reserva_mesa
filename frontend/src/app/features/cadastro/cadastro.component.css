@@ -1,12 +1,12 @@
-.login-page {
+.cadastro-page {
   min-height: 100vh;
   display: grid;
   place-items: center;
   padding: 24px;
 }
 
-.login-panel {
-  width: min(430px, 100%);
+.cadastro-panel {
+  width: min(560px, 100%);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -14,21 +14,14 @@
   box-shadow: 0 18px 48px rgba(23, 33, 43, .08);
 }
 
-.brand h1 {
+h1 {
   margin: 0;
-  font-size: 1.8rem;
+  letter-spacing: 0;
 }
 
-.brand p {
-  margin: 6px 0 18px;
+header p {
   color: var(--muted);
-}
-
-.quick-access {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
+  margin: 6px 0 18px;
 }
 
 form {
@@ -36,19 +29,33 @@ form {
   gap: 14px;
 }
 
-label {
+label,
+fieldset {
   display: grid;
   gap: 6px;
 }
 
-label span {
+label span,
+legend {
   color: var(--muted);
+  font-size: .92rem;
   font-weight: 700;
 }
 
-.login-links {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.choice-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+a {
+  display: block;
   margin-top: 18px;
+  text-align: center;
 }

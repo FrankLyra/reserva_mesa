@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { RegisterRequest } from './api.types';
 import { environment } from './environment';
 
 export interface AuthResponse {
@@ -21,6 +22,11 @@ export class AuthApiService {
 
   login(email: string, senha: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, { email, senha })
+      .pipe(tap(response => this.salvarSessao(response)));
+  }
+
+  registrar(request: RegisterRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, request)
       .pipe(tap(response => this.salvarSessao(response)));
   }
 

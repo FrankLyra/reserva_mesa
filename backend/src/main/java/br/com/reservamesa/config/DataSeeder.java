@@ -4,7 +4,9 @@ import br.com.reservamesa.domain.entity.Evento;
 import br.com.reservamesa.domain.entity.Mesa;
 import br.com.reservamesa.domain.entity.Usuario;
 import br.com.reservamesa.domain.enums.Role;
+import br.com.reservamesa.domain.enums.SetorMesa;
 import br.com.reservamesa.domain.enums.TipoAluguel;
+import br.com.reservamesa.domain.enums.TipoUsuario;
 import br.com.reservamesa.repository.EventoRepository;
 import br.com.reservamesa.repository.MesaRepository;
 import br.com.reservamesa.repository.UsuarioRepository;
@@ -32,6 +34,10 @@ public class DataSeeder {
                     .nome("Administrador")
                     .email("admin@reservas.com")
                     .senha(passwordEncoder.encode("admin123"))
+                    .telefone("(00) 00000-0000")
+                    .tipoUsuario(TipoUsuario.MORADOR)
+                    .blocoApartamento("Admin")
+                    .setorMesa(SetorMesa.AZUL)
                     .role(Role.ADMIN)
                     .build());
             }
@@ -41,6 +47,9 @@ public class DataSeeder {
                     .nome("Cliente Teste")
                     .email("cliente@reservas.com")
                     .senha(passwordEncoder.encode("cliente123"))
+                    .telefone("(00) 90000-0000")
+                    .tipoUsuario(TipoUsuario.CONVIDADO)
+                    .setorMesa(SetorMesa.VERDE)
                     .role(Role.USER)
                     .build());
             }

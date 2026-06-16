@@ -2,6 +2,9 @@ package br.com.reservamesa.service;
 
 import br.com.reservamesa.api.dto.AdminReservaResponse;
 import br.com.reservamesa.api.dto.DisponibilidadeResponse;
+import br.com.reservamesa.api.dto.ReservaItemRequest;
+import br.com.reservamesa.api.dto.ReservaLoteRequest;
+import br.com.reservamesa.api.dto.ReservaLoteResponse;
 import br.com.reservamesa.api.dto.ReservaRequest;
 import br.com.reservamesa.api.dto.ReservaResponse;
 import br.com.reservamesa.api.error.ConflictException;
@@ -83,6 +86,50 @@ public class ReservaService {
         return toResponse(reservaRepository.save(reserva));
     }
 
+    @Transactional
+    public ReservaLoteResponse criarReservasLote(ReservaLoteRequest request) {
+        Usuario usuario = usuarioRepository.findById(request.usuarioId())
+            .orElseThrow(() -> new IllegalArgumentException("Usuario nao encontrado"));
+        LocalDateTime agora = LocalDateTime.now();
+
+        List<ReservaPreValidada> preValidadas = request.itens().stream()
+            .map(this::preValidarItem)
+            .toList();
+
+        List<LocalDate> conflitos = preValidadas.stream()
+            .flatMap(item -> buscarDatasConflitantes(item.mesa().getId(), item.datas(), true).stream())
+            .distinct()
+            .sorted()
+            .toList();
+        if (!conflitos.isEmpty()) {
+            throw new ConflictException("Uma ou mais datas ja foram reservadas", conflitos);
+        }
+
+        BigDecimal valorTotal = preValidadas.stream()
+            .map(ReservaPreValidada::valorTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        String pixCopiaECola = gerarPixLoteMock(preValidadas, valorTotal);
+        LocalDateTime pixExpiraEm = agora.plusMinutes(pixExpirationMinutes);
+
+        List<Reserva> reservas = preValidadas.stream()
+            .map(item -> Reserva.builder()
+                .mesa(item.mesa())
+                .usuario(usuario)
+                .datasReservadas(item.datas())
+                .valorTotal(item.valorTotal())
+                .statusPagamento(StatusPagamento.PENDENTE)
+                .pixCopiaECola(pixCopiaECola)
+                .pixExpiraEm(pixExpiraEm)
+                .criadaEm(agora)
+                .build())
+            .toList();
+
+        List<ReservaResponse> responses = reservaRepository.saveAll(reservas).stream()
+            .map(this::toResponse)
+            .toList();
+        return new ReservaLoteResponse(responses, valorTotal, pixCopiaECola, pixExpiraEm);
+    }
+
     @Transactional(readOnly = true)
     public List<AdminReservaResponse> listarReservasAdmin() {
         return reservaRepository.findAllForAdmin().stream()
@@ -118,6 +165,14 @@ public class ReservaService {
     private Reserva buscarReserva(Long reservaId) {
         return reservaRepository.findById(reservaId)
             .orElseThrow(() -> new IllegalArgumentException("Reserva nao encontrada"));
+    }
+
+    private ReservaPreValidada preValidarItem(ReservaItemRequest item) {
+        Mesa mesa = buscarMesa(item.mesaId());
+        List<LocalDate> datas = normalizarDatas(item.datasReservadas());
+        validarDatasDaMesa(mesa, datas);
+        BigDecimal valorTotal = mesa.getEvento().getPrecoPorDia().multiply(BigDecimal.valueOf(datas.size()));
+        return new ReservaPreValidada(mesa, datas, valorTotal);
     }
 
     private List<LocalDate> buscarDatasConflitantes(Long mesaId, List<LocalDate> datas, boolean lock) {
@@ -157,6 +212,13 @@ public class ReservaService {
             + "5802BR5920RESERVA DE MESAS6009SAO PAULO62070503***6304MOCK";
     }
 
+    private String gerarPixLoteMock(List<ReservaPreValidada> itens, BigDecimal valorTotal) {
+        return "00020126580014BR.GOV.BCB.PIX0136lote-mesas-" + itens.size()
+            + "-dias-" + itens.stream().mapToInt(item -> item.datas().size()).sum()
+            + "520400005303986540" + valorTotal
+            + "5802BR5920RESERVA DE MESAS6009SAO PAULO62070503***6304MOCK";
+    }
+
     private ReservaResponse toResponse(Reserva reserva) {
         return new ReservaResponse(
             reserva.getId(),
@@ -188,5 +250,8 @@ public class ReservaService {
             reserva.getPixExpiraEm(),
             reserva.getCriadaEm()
         );
+    }
+
+    private record ReservaPreValidada(Mesa mesa, List<LocalDate> datas, BigDecimal valorTotal) {
     }
 }

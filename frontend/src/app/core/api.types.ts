@@ -1,6 +1,18 @@
 export type TipoAluguel = 'MIN_UM_DIA' | 'TODOS_OS_DIAS';
 export type MesaStatus = 'LIVRE' | 'PARCIAL' | 'OCUPADA';
 export type StatusPagamento = 'PENDENTE' | 'PAGO' | 'CANCELADO';
+export type TipoUsuario = 'MORADOR' | 'CONVIDADO';
+export type SetorMesa = 'AMARELO' | 'VERMELHO' | 'AZUL' | 'VERDE';
+
+export interface RegisterRequest {
+  nome: string;
+  email: string;
+  senha: string;
+  telefone: string;
+  tipoUsuario: TipoUsuario;
+  blocoApartamento?: string;
+  setorMesa: SetorMesa;
+}
 
 export interface EventoRequest {
   nome: string;
@@ -44,6 +56,18 @@ export interface ReservaResponse {
   datasReservadas: string[];
   valorTotal: number;
   statusPagamento: StatusPagamento;
+  pixCopiaECola: string;
+  pixExpiraEm: string;
+}
+
+export interface ReservaItemRequest {
+  mesaId: number;
+  datasReservadas: string[];
+}
+
+export interface ReservaLoteResponse {
+  reservas: ReservaResponse[];
+  valorTotal: number;
   pixCopiaECola: string;
   pixExpiraEm: string;
 }

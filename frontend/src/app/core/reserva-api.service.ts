@@ -8,6 +8,8 @@ import {
   Evento,
   EventoRequest,
   MesaStatusResponse,
+  ReservaItemRequest,
+  ReservaLoteResponse,
   ReservaResponse
 } from './api.types';
 
@@ -53,6 +55,13 @@ export class ReservaApiService {
       mesaId,
       usuarioId,
       datasReservadas
+    });
+  }
+
+  criarReservasLote(usuarioId: number, itens: ReservaItemRequest[]): Observable<ReservaLoteResponse> {
+    return this.http.post<ReservaLoteResponse>(`${this.apiUrl}/reservas/lote`, {
+      usuarioId,
+      itens
     });
   }
 }
