@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +26,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
         order by r.criadaEm desc
     """)
     List<Reserva> findAllForAdmin();
+
+    @Query("""
+        select distinct r
+        from Reserva r
+        join fetch r.mesa m
+        join fetch m.evento
+        join fetch r.usuario
+        left join fetch r.datasReservadas
+        where r.id = :id
+    """)
+    Optional<Reserva> findByIdForAdmin(@Param("id") Long id);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

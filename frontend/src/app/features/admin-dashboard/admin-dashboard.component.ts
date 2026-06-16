@@ -1,4 +1,5 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -108,9 +109,9 @@ export class AdminDashboardComponent implements OnInit {
         this.reservaEmAcao = undefined;
         this.mensagem = `Pagamento da reserva #${atualizada.id} confirmado.`;
       },
-      error: () => {
+      error: (error) => {
         this.reservaEmAcao = undefined;
-        this.mensagem = 'Nao foi possivel confirmar o pagamento.';
+        this.mensagem = this.mensagemErro('Nao foi possivel confirmar o pagamento.', error);
       }
     });
   }
@@ -123,9 +124,9 @@ export class AdminDashboardComponent implements OnInit {
         this.reservaEmAcao = undefined;
         this.mensagem = `Reserva #${atualizada.id} cancelada.`;
       },
-      error: () => {
+      error: (error) => {
         this.reservaEmAcao = undefined;
-        this.mensagem = 'Nao foi possivel cancelar a reserva.';
+        this.mensagem = this.mensagemErro('Nao foi possivel cancelar a reserva.', error);
       }
     });
   }
@@ -154,5 +155,19 @@ export class AdminDashboardComponent implements OnInit {
 
   private atualizarReserva(atualizada: AdminReservaResponse): void {
     this.reservas = this.reservas.map(reserva => reserva.id === atualizada.id ? atualizada : reserva);
+  }
+
+  private mensagemErro(prefixo: string, error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const backendMessage = error.error?.message;
+      if (backendMessage) {
+        return `${prefixo} Motivo: ${backendMessage}`;
+      }
+      if (error.status === 401 || error.status === 403) {
+        return `${prefixo} Faca login novamente como administrador.`;
+      }
+      return `${prefixo} HTTP ${error.status}.`;
+    }
+    return prefixo;
   }
 }

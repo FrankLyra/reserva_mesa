@@ -163,7 +163,7 @@ public class ReservaService {
     }
 
     private Reserva buscarReserva(Long reservaId) {
-        return reservaRepository.findById(reservaId)
+        return reservaRepository.findByIdForAdmin(reservaId)
             .orElseThrow(() -> new IllegalArgumentException("Reserva nao encontrada"));
     }
 
