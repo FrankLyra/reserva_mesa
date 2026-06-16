@@ -209,6 +209,10 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     return this.authApi.usuarioAtual()?.nome ?? '';
   }
 
+  isAdmin(): boolean {
+    return this.authApi.isAdmin();
+  }
+
   sair(): void {
     this.authApi.logout();
     this.router.navigate(['/login']);

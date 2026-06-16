@@ -13,6 +13,7 @@
               (change)="selecionarEvento(eventos[$any($event.target).selectedIndex])">
         <option *ngFor="let evento of eventos" [value]="evento.id">{{ evento.nome }}</option>
       </select>
+      <a *ngIf="isAdmin()" class="btn btn-outline-primary" routerLink="/admin">Admin</a>
       <button type="button" class="btn btn-outline-dark" (click)="sair()">Sair</button>
     </div>
   </header>
