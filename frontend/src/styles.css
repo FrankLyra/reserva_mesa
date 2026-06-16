@@ -1,0 +1,24 @@
+:root {
+  color-scheme: light;
+  --page: #f6f7f9;
+  --surface: #ffffff;
+  --line: #dde3ea;
+  --text: #17212b;
+  --muted: #647383;
+  --green: #228b55;
+  --yellow: #d88912;
+  --red: #c93a32;
+  --blue: #2267b7;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--page);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button, input {
+  font: inherit;
+}

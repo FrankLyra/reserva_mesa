@@ -1,0 +1,136 @@
+<main class="workspace">
+  <header class="topbar">
+    <div>
+      <h1>Reserva de Mesas</h1>
+      <p>Selecione o evento, escolha a mesa e confirme as datas antes do PIX.</p>
+    </div>
+
+    <select class="form-select event-select"
+            aria-label="Selecionar evento"
+            [disabled]="eventos.length === 0"
+            [value]="eventoSelecionado?.id"
+            (change)="selecionarEvento(eventos[$any($event.target).selectedIndex])">
+      <option *ngFor="let evento of eventos" [value]="evento.id">{{ evento.nome }}</option>
+    </select>
+  </header>
+
+  <section *ngIf="mensagem" class="alert alert-info status-message" role="status">
+    {{ mensagem }}
+  </section>
+
+  <section *ngIf="carregando" class="loading">
+    Carregando reservas...
+  </section>
+
+  <section *ngIf="!carregando && eventoSelecionado" class="layout">
+    <aside class="summary-panel">
+      <h2>{{ eventoSelecionado.nome }}</h2>
+      <p>{{ eventoSelecionado.descricao }}</p>
+
+      <dl>
+        <div>
+          <dt>Periodo</dt>
+          <dd>{{ eventoSelecionado.dataInicio | date:'dd/MM/yyyy' }} a {{ eventoSelecionado.dataFim | date:'dd/MM/yyyy' }}</dd>
+        </div>
+        <div>
+          <dt>Preco por dia</dt>
+          <dd>{{ eventoSelecionado.precoPorDia | currency:'BRL':'symbol':'1.2-2' }}</dd>
+        </div>
+        <div>
+          <dt>Regra</dt>
+          <dd>{{ eventoSelecionado.tipoAluguel === 'TODOS_OS_DIAS' ? 'Pacote completo' : 'Minimo de 1 dia' }}</dd>
+        </div>
+      </dl>
+
+      <div class="legend">
+        <span><i class="dot livre"></i>Livre</span>
+        <span><i class="dot parcial"></i>Parcial</span>
+        <span><i class="dot ocupada"></i>Ocupada</span>
+      </div>
+    </aside>
+
+    <section class="tables-panel">
+      <div class="section-title">
+        <h2>Mesas</h2>
+        <span>{{ mesas.length }} disponiveis no mapa</span>
+      </div>
+
+      <div class="mesa-grid" [style.grid-template-columns]="'repeat(' + gridColumns() + ', minmax(68px, 1fr))'">
+        <button *ngFor="let mesa of mesas"
+                type="button"
+                [class]="classeMesa(mesa)"
+                [class.active]="mesaSelecionada?.mesaId === mesa.mesaId"
+                (click)="selecionarMesa(mesa)">
+          <strong>{{ mesa.numeroMesa }}</strong>
+          <small>{{ mesa.status }}</small>
+        </button>
+      </div>
+    </section>
+
+    <section class="details-panel" *ngIf="mesaSelecionada">
+      <div class="section-title">
+        <h2>Mesa {{ mesaSelecionada.numeroMesa }}</h2>
+        <span>{{ mesaSelecionada.datasOcupadas.length }} dia(s) ocupados</span>
+      </div>
+
+      <div class="agenda">
+        <button *ngFor="let dia of eventoSelecionado.diasEvento"
+                type="button"
+                [class]="classeDia(dia)"
+                [disabled]="diaStatus(dia) === 'OCUPADO'"
+                (click)="alternarData(dia)">
+          <strong>{{ dia | date:'dd/MM' }}</strong>
+          <small>{{ diaStatus(dia) }}</small>
+        </button>
+      </div>
+
+      <footer class="checkout-bar">
+        <div>
+          <span>{{ datasSelecionadas.size }} dia(s) selecionados</span>
+          <strong>{{ total() | currency:'BRL':'symbol':'1.2-2' }}</strong>
+        </div>
+        <button type="button"
+                class="btn btn-primary"
+                [disabled]="verificando || datasSelecionadas.size === 0"
+                (click)="verificarEContinuar()">
+          {{ verificando ? 'Validando...' : 'Confirmar e Pagar via PIX' }}
+        </button>
+      </footer>
+    </section>
+  </section>
+</main>
+
+<div class="pix-backdrop" *ngIf="reservaPix">
+  <section class="pix-modal" role="dialog" aria-modal="true" aria-labelledby="pix-title">
+    <header>
+      <h2 id="pix-title">PIX gerado com sucesso</h2>
+      <button type="button" class="close-button" aria-label="Fechar modal PIX" (click)="fecharPix()">x</button>
+    </header>
+
+    <dl class="pix-summary">
+      <div>
+        <dt>Mesa</dt>
+        <dd>{{ reservaPix.numeroMesa }}</dd>
+      </div>
+      <div>
+        <dt>Datas</dt>
+        <dd>{{ reservaPix.datasReservadas.join(', ') }}</dd>
+      </div>
+      <div>
+        <dt>Total</dt>
+        <dd>{{ reservaPix.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</dd>
+      </div>
+      <div>
+        <dt>Expira em</dt>
+        <dd>{{ segundosPix }}s</dd>
+      </div>
+    </dl>
+
+    <label class="pix-code">
+      <span>PIX copia e cola</span>
+      <input type="text" [value]="reservaPix.pixCopiaECola" disabled>
+    </label>
+
+    <button type="button" class="btn btn-success w-100" (click)="copiarPix()">Copiar Codigo</button>
+  </section>
+</div>

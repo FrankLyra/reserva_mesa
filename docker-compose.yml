@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: reserva_mesas_db
+    environment:
+      POSTGRES_DB: reserva_mesas
+      POSTGRES_USER: reserva
+      POSTGRES_PASSWORD: reserva
+    ports:
+      - "5432:5432"
+    volumes:
+      - reserva_mesas_db:/var/lib/postgresql/data
+
+volumes:
+  reserva_mesas_db:
