@@ -75,6 +75,34 @@ dt {
   gap: 12px;
 }
 
+.sector-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sector-field {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.sector-amarelo {
+  border-color: #d8a500;
+}
+
+.sector-vermelho {
+  border-color: #c93a32;
+}
+
+.sector-azul {
+  border-color: #2267b7;
+}
+
+.sector-verde {
+  border-color: #228b55;
+}
+
 .events-list {
   display: grid;
   gap: 12px;
@@ -170,7 +198,8 @@ dd {
 
   .admin-layout,
   .event-item dl,
-  .reservation-item dl {
+  .reservation-item dl,
+  .sector-grid {
     grid-template-columns: 1fr;
   }
 }

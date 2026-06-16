@@ -33,6 +33,10 @@ export class AdminDashboardComponent implements OnInit {
     dataFim: ['', [Validators.required]],
     descricao: ['', [Validators.required]],
     quantidadeMesas: [20, [Validators.required, Validators.min(1)]],
+    amarelo: [5, [Validators.required, Validators.min(0)]],
+    vermelho: [5, [Validators.required, Validators.min(0)]],
+    azul: [5, [Validators.required, Validators.min(0)]],
+    verde: [5, [Validators.required, Validators.min(0)]],
     tipoAluguel: ['MIN_UM_DIA' as const, [Validators.required]],
     precoPorDia: [150, [Validators.required, Validators.min(0.01)]]
   });
@@ -58,7 +62,22 @@ export class AdminDashboardComponent implements OnInit {
 
     this.salvando = true;
     this.mensagem = '';
-    const request = this.form.getRawValue() as EventoRequest;
+    const valores = this.form.getRawValue();
+    const request: EventoRequest = {
+      nome: valores.nome,
+      dataInicio: valores.dataInicio,
+      dataFim: valores.dataFim,
+      descricao: valores.descricao,
+      quantidadeMesas: this.totalMesasSetores(),
+      setores: {
+        amarelo: valores.amarelo,
+        vermelho: valores.vermelho,
+        azul: valores.azul,
+        verde: valores.verde
+      },
+      tipoAluguel: valores.tipoAluguel,
+      precoPorDia: valores.precoPorDia
+    };
     this.reservaApi.criarEvento(request).subscribe({
       next: (evento) => {
         this.eventos = [evento, ...this.eventos];
@@ -70,6 +89,10 @@ export class AdminDashboardComponent implements OnInit {
           dataFim: '',
           descricao: '',
           quantidadeMesas: 20,
+          amarelo: 5,
+          vermelho: 5,
+          azul: 5,
+          verde: 5,
           tipoAluguel: 'MIN_UM_DIA',
           precoPorDia: 150
         });
@@ -83,6 +106,11 @@ export class AdminDashboardComponent implements OnInit {
 
   usuarioNome(): string {
     return this.authApi.usuarioAtual()?.nome ?? 'Admin';
+  }
+
+  totalMesasSetores(): number {
+    const valores = this.form.getRawValue();
+    return valores.amarelo + valores.vermelho + valores.azul + valores.verde;
   }
 
   sair(): void {

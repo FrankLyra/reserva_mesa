@@ -66,7 +66,11 @@ public class DataSeeder {
                     .build());
 
                 mesaRepository.saveAll(IntStream.rangeClosed(1, evento.getQuantidadeMesas())
-                    .mapToObj(numero -> Mesa.builder().numeroMesa(numero).evento(evento).build())
+                    .mapToObj(numero -> Mesa.builder()
+                        .numeroMesa(numero)
+                        .setor(SetorMesa.values()[(numero - 1) % SetorMesa.values().length])
+                        .evento(evento)
+                        .build())
                     .toList());
             }
         };

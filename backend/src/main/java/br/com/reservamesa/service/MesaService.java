@@ -56,6 +56,7 @@ public class MesaService {
                 return new MesaStatusResponse(
                     mesa.getId(),
                     mesa.getNumeroMesa(),
+                    mesa.getSetor(),
                     calcularStatus(ocupadas.size(), diasEvento.size()),
                     ocupadas
                 );

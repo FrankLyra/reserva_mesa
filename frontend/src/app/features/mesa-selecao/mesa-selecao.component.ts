@@ -182,7 +182,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
   }
 
   classeMesa(mesa: MesaStatusResponse): string {
-    return `mesa mesa-${mesa.status.toLowerCase()}`;
+    return `mesa setor-${mesa.setor.toLowerCase()} mesa-${mesa.status.toLowerCase()}`;
   }
 
   classeDia(data: string): string {

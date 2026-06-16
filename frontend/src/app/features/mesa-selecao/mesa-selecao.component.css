@@ -155,9 +155,17 @@ dd {
   border-color: #17212b;
 }
 
-.mesa-livre { background: var(--green); }
-.mesa-parcial { background: var(--yellow); }
-.mesa-ocupada { background: var(--red); }
+.setor-amarelo { background: #d8a500; }
+.setor-vermelho { background: #c93a32; }
+.setor-azul { background: #2267b7; }
+.setor-verde { background: #228b55; }
+
+.mesa-livre { border-color: rgba(255, 255, 255, .65); }
+.mesa-parcial { border-color: #17212b; }
+.mesa-ocupada {
+  border-color: #17212b;
+  filter: grayscale(.15) brightness(.78);
+}
 
 .details-panel {
   grid-column: 2;

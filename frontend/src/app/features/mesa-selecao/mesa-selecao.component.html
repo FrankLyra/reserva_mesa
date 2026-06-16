@@ -66,7 +66,7 @@
                 [class.active]="mesaSelecionada?.mesaId === mesa.mesaId"
                 (click)="selecionarMesa(mesa)">
           <strong>{{ mesa.numeroMesa }}</strong>
-          <small>{{ mesa.status }}</small>
+          <small>{{ mesa.setor }} - {{ mesa.status }}</small>
         </button>
       </div>
     </section>

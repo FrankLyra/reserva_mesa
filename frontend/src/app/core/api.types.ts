@@ -20,6 +20,12 @@ export interface EventoRequest {
   dataFim: string;
   descricao: string;
   quantidadeMesas: number;
+  setores: {
+    amarelo: number;
+    vermelho: number;
+    azul: number;
+    verde: number;
+  };
   tipoAluguel: TipoAluguel;
   precoPorDia: number;
 }
@@ -39,6 +45,7 @@ export interface Evento {
 export interface MesaStatusResponse {
   mesaId: number;
   numeroMesa: number;
+  setor: SetorMesa;
   status: MesaStatus;
   datasOcupadas: string[];
 }

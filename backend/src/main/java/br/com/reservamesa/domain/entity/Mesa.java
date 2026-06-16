@@ -1,6 +1,9 @@
 package br.com.reservamesa.domain.entity;
 
+import br.com.reservamesa.domain.enums.SetorMesa;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +35,9 @@ public class Mesa {
     private Long id;
 
     private Integer numeroMesa;
+
+    @Enumerated(EnumType.STRING)
+    private SetorMesa setor;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "evento_id", nullable = false)

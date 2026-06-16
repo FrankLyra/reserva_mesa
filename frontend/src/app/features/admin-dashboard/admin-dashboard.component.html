@@ -39,12 +39,31 @@
 
       <div class="date-grid">
         <label>
-          <span>Mesas</span>
-          <input class="form-control" type="number" min="1" formControlName="quantidadeMesas">
+          <span>Total de mesas</span>
+          <input class="form-control" type="number" [value]="totalMesasSetores()" disabled>
         </label>
         <label>
           <span>Preco por dia</span>
           <input class="form-control" type="number" min="0.01" step="0.01" formControlName="precoPorDia">
+        </label>
+      </div>
+
+      <div class="sector-grid">
+        <label class="sector-field sector-amarelo">
+          <span>Amarelo</span>
+          <input class="form-control" type="number" min="0" formControlName="amarelo">
+        </label>
+        <label class="sector-field sector-vermelho">
+          <span>Vermelho</span>
+          <input class="form-control" type="number" min="0" formControlName="vermelho">
+        </label>
+        <label class="sector-field sector-azul">
+          <span>Azul</span>
+          <input class="form-control" type="number" min="0" formControlName="azul">
+        </label>
+        <label class="sector-field sector-verde">
+          <span>Verde</span>
+          <input class="form-control" type="number" min="0" formControlName="verde">
         </label>
       </div>
 

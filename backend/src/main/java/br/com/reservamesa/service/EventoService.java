@@ -2,13 +2,15 @@ package br.com.reservamesa.service;
 
 import br.com.reservamesa.api.dto.EventoRequest;
 import br.com.reservamesa.api.dto.EventoResponse;
+import br.com.reservamesa.api.dto.SetoresEventoRequest;
 import br.com.reservamesa.domain.entity.Evento;
 import br.com.reservamesa.domain.entity.Mesa;
+import br.com.reservamesa.domain.enums.SetorMesa;
 import br.com.reservamesa.repository.EventoRepository;
 import br.com.reservamesa.repository.MesaRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class EventoService {
     @Transactional
     public EventoResponse criar(EventoRequest request) {
         validarPeriodo(request.dataInicio(), request.dataFim());
+        validarSetores(request);
 
         Evento evento = Evento.builder()
             .nome(request.nome())
@@ -38,9 +41,7 @@ public class EventoService {
             .build();
         eventoRepository.save(evento);
 
-        List<Mesa> mesas = IntStream.rangeClosed(1, request.quantidadeMesas())
-            .mapToObj(numero -> Mesa.builder().numeroMesa(numero).evento(evento).build())
-            .toList();
+        List<Mesa> mesas = criarMesasPorSetor(evento, request);
         mesaRepository.saveAll(mesas);
 
         return toResponse(evento);
@@ -61,6 +62,57 @@ public class EventoService {
         if (fim.isBefore(inicio)) {
             throw new IllegalArgumentException("Data final deve ser igual ou posterior a data inicial");
         }
+    }
+
+    private void validarSetores(EventoRequest request) {
+        int totalSetores = totalSetores(request.setores());
+        if (totalSetores > 0 && totalSetores != request.quantidadeMesas()) {
+            throw new IllegalArgumentException("A soma das mesas por setor deve ser igual a quantidade total de mesas");
+        }
+    }
+
+    private List<Mesa> criarMesasPorSetor(Evento evento, EventoRequest request) {
+        List<Mesa> mesas = new ArrayList<>();
+        SetoresEventoRequest setores = request.setores();
+        int numero = 1;
+        if (totalSetores(setores) == 0) {
+            for (int i = 0; i < request.quantidadeMesas(); i++) {
+                mesas.add(criarMesa(evento, numero++, SetorMesa.VERDE));
+            }
+            return mesas;
+        }
+
+        numero = adicionarMesasSetor(mesas, evento, numero, SetorMesa.AMARELO, valorSetor(setores.amarelo()));
+        numero = adicionarMesasSetor(mesas, evento, numero, SetorMesa.VERMELHO, valorSetor(setores.vermelho()));
+        numero = adicionarMesasSetor(mesas, evento, numero, SetorMesa.AZUL, valorSetor(setores.azul()));
+        adicionarMesasSetor(mesas, evento, numero, SetorMesa.VERDE, valorSetor(setores.verde()));
+        return mesas;
+    }
+
+    private int adicionarMesasSetor(List<Mesa> mesas, Evento evento, int numeroInicial, SetorMesa setor, int quantidade) {
+        int numero = numeroInicial;
+        for (int i = 0; i < quantidade; i++) {
+            mesas.add(criarMesa(evento, numero++, setor));
+        }
+        return numero;
+    }
+
+    private Mesa criarMesa(Evento evento, int numero, SetorMesa setor) {
+        return Mesa.builder().numeroMesa(numero).setor(setor).evento(evento).build();
+    }
+
+    private int totalSetores(SetoresEventoRequest setores) {
+        if (setores == null) {
+            return 0;
+        }
+        return valorSetor(setores.amarelo())
+            + valorSetor(setores.vermelho())
+            + valorSetor(setores.azul())
+            + valorSetor(setores.verde());
+    }
+
+    private int valorSetor(Integer valor) {
+        return valor == null ? 0 : valor;
     }
 
     private EventoResponse toResponse(Evento evento) {

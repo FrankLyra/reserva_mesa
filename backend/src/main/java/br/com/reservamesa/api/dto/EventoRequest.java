@@ -15,6 +15,7 @@ public record EventoRequest(
     @NotNull LocalDate dataFim,
     @NotBlank String descricao,
     @NotNull @Min(1) Integer quantidadeMesas,
+    SetoresEventoRequest setores,
     @NotNull TipoAluguel tipoAluguel,
     @NotNull @DecimalMin("0.01") BigDecimal precoPorDia
 ) {
