@@ -367,6 +367,10 @@ dd {
   color: #fff;
 }
 
+.status.status-pago {
+  color: #fff;
+}
+
 .status-cancelado {
   background: var(--red);
 }
