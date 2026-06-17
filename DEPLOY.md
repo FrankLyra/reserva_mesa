@@ -3,10 +3,40 @@
 ## Arquitetura recomendada
 
 - Frontend Angular: Vercel.
-- Backend Spring Boot: servidor/container Docker, Render, Railway, Fly.io ou VPS.
-- Banco PostgreSQL: gerenciado por Neon/Supabase/Railway/Render ou container PostgreSQL no mesmo servidor do backend.
+- Backend Spring Boot: Render.
+- Banco PostgreSQL: Render Postgres.
 
 Vercel hospeda bem o frontend estatico, mas nao e a opcao adequada para rodar PostgreSQL em container nem uma API Spring Boot persistente.
+
+## Backend + PostgreSQL no Render
+
+O arquivo `render.yaml` na raiz do repositorio cria:
+
+- Web Service Docker `reserva-mesas-api`.
+- Banco PostgreSQL `reserva-mesas-db`.
+- Variaveis de ambiente do Spring apontando para o banco.
+
+Passos:
+
+1. Acesse o Dashboard do Render.
+2. Clique em New > Blueprint.
+3. Conecte o repositorio `FrankLyra/reserva_mesa`.
+4. Confirme o blueprint encontrado em `render.yaml`.
+5. Antes do primeiro deploy, preencha a variavel `CORS_ALLOWED_ORIGINS` com a URL do frontend na Vercel.
+
+Exemplo:
+
+```text
+CORS_ALLOWED_ORIGINS=https://seu-projeto.vercel.app
+```
+
+Depois do deploy, a API ficara em uma URL parecida com:
+
+```text
+https://reserva-mesas-api.onrender.com/api
+```
+
+Use essa URL como `API_URL` no frontend da Vercel.
 
 ## Backend + PostgreSQL com Docker
 
