@@ -97,7 +97,7 @@
         </button>
       </div>
 
-      <footer class="checkout-bar">
+      <footer class="checkout-bar" *ngIf="!isAdmin()">
         <div>
           <span>{{ datasSelecionadas.size }} dia(s) selecionados</span>
           <strong>{{ total() | currency:'BRL':'symbol':'1.2-2' }}</strong>
@@ -111,7 +111,7 @@
       </footer>
     </section>
 
-    <section class="cart-panel">
+    <section class="cart-panel" *ngIf="!isAdmin()">
       <div class="section-title">
         <h2>Carrinho</h2>
         <span>{{ carrinho.length }} mesa(s)</span>
@@ -144,6 +144,69 @@
           {{ verificando ? 'Validando...' : 'Confirmar e Pagar via PIX' }}
         </button>
       </footer>
+    </section>
+
+    <section class="admin-reservations-panel" *ngIf="isAdmin()">
+      <div class="section-title">
+        <div>
+          <h2>Reservas do evento</h2>
+          <span>{{ reservasAdminFiltradas().length }} exibida(s)</span>
+        </div>
+        <div class="filters" role="group" aria-label="Filtrar reservas por status">
+          <button type="button" class="btn btn-sm" [class.btn-primary]="filtroStatus === 'PENDENTE'" [class.btn-outline-primary]="filtroStatus !== 'PENDENTE'" (click)="filtrarReservasAdmin('PENDENTE')">Pendentes</button>
+          <button type="button" class="btn btn-sm" [class.btn-primary]="filtroStatus === 'PAGO'" [class.btn-outline-primary]="filtroStatus !== 'PAGO'" (click)="filtrarReservasAdmin('PAGO')">Pagas</button>
+          <button type="button" class="btn btn-sm" [class.btn-primary]="filtroStatus === 'CANCELADO'" [class.btn-outline-primary]="filtroStatus !== 'CANCELADO'" (click)="filtrarReservasAdmin('CANCELADO')">Canceladas</button>
+          <button type="button" class="btn btn-sm" [class.btn-primary]="filtroStatus === 'TODAS'" [class.btn-outline-primary]="filtroStatus !== 'TODAS'" (click)="filtrarReservasAdmin('TODAS')">Todas</button>
+        </div>
+      </div>
+
+      <div class="cart-empty" *ngIf="reservasAdminFiltradas().length === 0">
+        Nenhuma reserva encontrada para este evento.
+      </div>
+
+      <article *ngFor="let reserva of reservasAdminFiltradas()" class="admin-reservation-item">
+        <header>
+          <div>
+            <strong>Reserva #{{ reserva.id }} - Mesa {{ reserva.numeroMesa }}</strong>
+            <span>{{ reserva.usuarioNome }} ({{ reserva.usuarioEmail }})</span>
+          </div>
+          <span [class]="classeStatus(reserva.statusPagamento)">{{ reserva.statusPagamento }}</span>
+        </header>
+
+        <dl>
+          <div>
+            <dt>Datas</dt>
+            <dd>{{ reserva.datasReservadas.join(', ') }}</dd>
+          </div>
+          <div>
+            <dt>Total</dt>
+            <dd>{{ reserva.valorTotal | currency:'BRL':'symbol':'1.2-2' }}</dd>
+          </div>
+          <div>
+            <dt>Criada em</dt>
+            <dd>{{ reserva.criadaEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+          <div>
+            <dt>PIX expira</dt>
+            <dd>{{ reserva.pixExpiraEm | date:'dd/MM/yyyy HH:mm' }}</dd>
+          </div>
+        </dl>
+
+        <footer>
+          <button type="button"
+                  class="btn btn-success"
+                  [disabled]="reserva.statusPagamento !== 'PENDENTE' || acaoBloqueada(reserva)"
+                  (click)="confirmarPagamento(reserva)">
+            Confirmar pagamento
+          </button>
+          <button type="button"
+                  class="btn btn-outline-danger"
+                  [disabled]="!podeCancelar(reserva) || acaoBloqueada(reserva)"
+                  (click)="cancelarReserva(reserva)">
+            Cancelar reserva
+          </button>
+        </footer>
+      </article>
     </section>
   </section>
 </main>

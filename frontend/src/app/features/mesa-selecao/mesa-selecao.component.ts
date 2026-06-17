@@ -4,7 +4,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Evento, MesaStatusResponse, ReservaLoteResponse, SetorMesa } from '../../core/api.types';
+import {
+  AdminReservaResponse,
+  Evento,
+  MesaStatusResponse,
+  ReservaLoteResponse,
+  SetorMesa,
+  StatusPagamento
+} from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
 import { ReservaApiService } from '../../core/reserva-api.service';
 
@@ -29,6 +36,8 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
   eventos: Evento[] = [];
   eventoSelecionado?: Evento;
   mesas: MesaStatusResponse[] = [];
+  reservasAdmin: AdminReservaResponse[] = [];
+  filtroStatus: StatusPagamento | 'TODAS' = 'TODAS';
   mesaSelecionada?: MesaStatusResponse;
   datasSelecionadas = new Set<string>();
   carrinho: CarrinhoItem[] = [];
@@ -36,6 +45,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
   mensagem = '';
   carregando = true;
   verificando = false;
+  reservaEmAcao?: number;
   segundosPix = 0;
   private timerId?: number;
 
@@ -59,6 +69,7 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     this.datasSelecionadas.clear();
     this.carrinho = [];
     this.carregarMesas(evento.id);
+    this.carregarReservasAdmin();
   }
 
   selecionarMesa(mesa: MesaStatusResponse): void {
@@ -218,6 +229,66 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
     return this.authApi.isAdmin();
   }
 
+  reservasAdminFiltradas(): AdminReservaResponse[] {
+    return this.reservasAdmin.filter(reserva => {
+      const mesmoEvento = reserva.eventoId === this.eventoSelecionado?.id;
+      const mesmoStatus = this.filtroStatus === 'TODAS' || reserva.statusPagamento === this.filtroStatus;
+      return mesmoEvento && mesmoStatus;
+    });
+  }
+
+  filtrarReservasAdmin(status: StatusPagamento | 'TODAS'): void {
+    this.filtroStatus = status;
+  }
+
+  confirmarPagamento(reserva: AdminReservaResponse): void {
+    this.reservaEmAcao = reserva.id;
+    this.reservaApi.confirmarPagamento(reserva.id).subscribe({
+      next: atualizada => {
+        this.atualizarReservaAdmin(atualizada);
+        this.reservaEmAcao = undefined;
+        this.mensagem = `Pagamento da reserva #${atualizada.id} confirmado.`;
+        if (this.eventoSelecionado) {
+          this.carregarMesas(this.eventoSelecionado.id);
+        }
+      },
+      error: (error) => {
+        this.reservaEmAcao = undefined;
+        this.mensagem = this.mensagemErro('Nao foi possivel confirmar o pagamento.', error);
+      }
+    });
+  }
+
+  cancelarReserva(reserva: AdminReservaResponse): void {
+    this.reservaEmAcao = reserva.id;
+    this.reservaApi.cancelarReserva(reserva.id).subscribe({
+      next: atualizada => {
+        this.atualizarReservaAdmin(atualizada);
+        this.reservaEmAcao = undefined;
+        this.mensagem = `Reserva #${atualizada.id} cancelada.`;
+        if (this.eventoSelecionado) {
+          this.carregarMesas(this.eventoSelecionado.id);
+        }
+      },
+      error: (error) => {
+        this.reservaEmAcao = undefined;
+        this.mensagem = this.mensagemErro('Nao foi possivel cancelar a reserva.', error);
+      }
+    });
+  }
+
+  classeStatus(status: StatusPagamento): string {
+    return `status status-${status.toLowerCase()}`;
+  }
+
+  acaoBloqueada(reserva: AdminReservaResponse): boolean {
+    return this.reservaEmAcao === reserva.id;
+  }
+
+  podeCancelar(reserva: AdminReservaResponse): boolean {
+    return reserva.statusPagamento !== 'CANCELADO';
+  }
+
   sair(): void {
     this.authApi.logout();
     this.router.navigate(['/login']);
@@ -250,6 +321,18 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
         return of([] as MesaStatusResponse[]);
       })
     ).subscribe(mesas => this.mesas = mesas);
+  }
+
+  private carregarReservasAdmin(): void {
+    if (!this.isAdmin()) {
+      return;
+    }
+    this.reservaApi.listarReservasAdmin().pipe(
+      catchError(() => {
+        this.mensagem = 'Nao foi possivel carregar as reservas do evento.';
+        return of([] as AdminReservaResponse[]);
+      })
+    ).subscribe(reservas => this.reservasAdmin = reservas);
   }
 
   private diasDisponiveis(): string[] {
@@ -310,5 +393,23 @@ export class MesaSelecaoComponent implements OnInit, OnDestroy {
       window.clearInterval(this.timerId);
       this.timerId = undefined;
     }
+  }
+
+  private atualizarReservaAdmin(atualizada: AdminReservaResponse): void {
+    this.reservasAdmin = this.reservasAdmin.map(reserva => reserva.id === atualizada.id ? atualizada : reserva);
+  }
+
+  private mensagemErro(prefixo: string, error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const backendMessage = error.error?.message;
+      if (backendMessage) {
+        return `${prefixo} Motivo: ${backendMessage}`;
+      }
+      if (error.status === 401 || error.status === 403) {
+        return `${prefixo} Faca login novamente como administrador.`;
+      }
+      return `${prefixo} HTTP ${error.status}.`;
+    }
+    return prefixo;
   }
 }

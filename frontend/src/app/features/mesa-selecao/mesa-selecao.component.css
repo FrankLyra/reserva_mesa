@@ -62,7 +62,8 @@
 .summary-panel,
 .tables-panel,
 .details-panel,
-.cart-panel {
+.cart-panel,
+.admin-reservations-panel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -216,7 +217,8 @@ dd {
   grid-column: 2;
 }
 
-.cart-panel {
+.cart-panel,
+.admin-reservations-panel {
   grid-column: 2;
 }
 
@@ -298,6 +300,70 @@ dd {
   text-align: right;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-reservation-item {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 12px;
+}
+
+.admin-reservation-item header,
+.admin-reservation-item footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-reservation-item header span,
+.admin-reservation-item header strong {
+  display: block;
+}
+
+.admin-reservation-item header span {
+  color: var(--muted);
+}
+
+.admin-reservation-item dl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.admin-reservation-item footer {
+  border-top: 1px solid var(--line);
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.status {
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+}
+
+.status-pendente {
+  background: var(--yellow);
+}
+
+.status-pago {
+  background: var(--green);
+}
+
+.status-cancelado {
+  background: var(--red);
+}
+
 .pix-backdrop {
   position: fixed;
   inset: 0;
@@ -371,12 +437,19 @@ dd {
   }
 
   .details-panel,
-  .cart-panel {
+  .cart-panel,
+  .admin-reservations-panel {
     grid-column: auto;
   }
 
-  .cart-item {
+  .cart-item,
+  .admin-reservation-item header,
+  .admin-reservation-item footer {
     flex-direction: column;
+  }
+
+  .admin-reservation-item dl {
+    grid-template-columns: 1fr;
   }
 
   .cart-actions {
