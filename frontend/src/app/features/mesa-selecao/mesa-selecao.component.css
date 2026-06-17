@@ -327,7 +327,11 @@ dd {
 }
 
 .admin-reservation-item header span {
+  align-items: center;
   color: #f8f9fa;
+  display: inline-flex;
+  justify-content: center;
+  text-align: center;
 }
 
 .admin-reservation-item dl {
