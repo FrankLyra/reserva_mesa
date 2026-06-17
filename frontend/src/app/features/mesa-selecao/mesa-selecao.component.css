@@ -209,8 +209,9 @@ dd {
 .mesa-livre { border-color: rgba(255, 255, 255, .65); }
 .mesa-parcial { border-color: #17212b; }
 .mesa-ocupada {
-  border-color: #17212b;
-  filter: grayscale(.15) brightness(.78);
+  background: #7b858f;
+  border-color: #4d565f;
+  color: #fff;
 }
 
 .details-panel {
