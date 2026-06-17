@@ -22,6 +22,12 @@ services:
         value: 120
       - key: PIX_EXPIRATION_MINUTES
         value: 20
+      - key: ADMIN_EMAIL
+        value: admin@reservas.com
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: RESET_DATABASE_ON_START
+        value: false
       - key: CORS_ALLOWED_ORIGINS
         sync: false
 

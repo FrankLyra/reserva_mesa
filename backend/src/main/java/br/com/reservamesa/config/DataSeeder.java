@@ -1,22 +1,17 @@
 package br.com.reservamesa.config;
 
-import br.com.reservamesa.domain.entity.Evento;
-import br.com.reservamesa.domain.entity.Mesa;
 import br.com.reservamesa.domain.entity.Usuario;
 import br.com.reservamesa.domain.enums.Role;
 import br.com.reservamesa.domain.enums.SetorMesa;
-import br.com.reservamesa.domain.enums.TipoAluguel;
 import br.com.reservamesa.domain.enums.TipoUsuario;
-import br.com.reservamesa.repository.EventoRepository;
-import br.com.reservamesa.repository.MesaRepository;
 import br.com.reservamesa.repository.UsuarioRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.stream.IntStream;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 @Configuration
 public class DataSeeder {
@@ -24,16 +19,21 @@ public class DataSeeder {
     @Bean
     CommandLineRunner seed(
         UsuarioRepository usuarioRepository,
-        EventoRepository eventoRepository,
-        MesaRepository mesaRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        DatabaseResetter databaseResetter,
+        @Value("${app.bootstrap.admin-email:admin@reservas.com}") String adminEmail,
+        @Value("${app.bootstrap.admin-password:admin123}") String adminPassword
     ) {
         return args -> {
-            if (!usuarioRepository.existsByEmail("admin@reservas.com")) {
+            if (isDatabaseResetEnabled()) {
+                databaseResetter.reset();
+            }
+
+            if (!usuarioRepository.existsByEmail(adminEmail)) {
                 usuarioRepository.save(Usuario.builder()
                     .nome("Administrador")
-                    .email("admin@reservas.com")
-                    .senha(passwordEncoder.encode("admin123"))
+                    .email(adminEmail)
+                    .senha(passwordEncoder.encode(adminPassword))
                     .telefone("(00) 00000-0000")
                     .tipoUsuario(TipoUsuario.MORADOR)
                     .blocoApartamento("Admin")
@@ -41,38 +41,33 @@ public class DataSeeder {
                     .role(Role.ADMIN)
                     .build());
             }
-
-            if (!usuarioRepository.existsByEmail("cliente@reservas.com")) {
-                usuarioRepository.save(Usuario.builder()
-                    .nome("Cliente Teste")
-                    .email("cliente@reservas.com")
-                    .senha(passwordEncoder.encode("cliente123"))
-                    .telefone("(00) 90000-0000")
-                    .tipoUsuario(TipoUsuario.CONVIDADO)
-                    .setorMesa(SetorMesa.VERDE)
-                    .role(Role.USER)
-                    .build());
-            }
-
-            if (eventoRepository.count() == 0) {
-                Evento evento = eventoRepository.save(Evento.builder()
-                    .nome("Feira Gastronomica 2026")
-                    .descricao("Evento demonstrativo para reservas de mesas.")
-                    .dataInicio(LocalDate.now().plusDays(7))
-                    .dataFim(LocalDate.now().plusDays(10))
-                    .quantidadeMesas(24)
-                    .tipoAluguel(TipoAluguel.MIN_UM_DIA)
-                    .precoPorDia(new BigDecimal("150.00"))
-                    .build());
-
-                mesaRepository.saveAll(IntStream.rangeClosed(1, evento.getQuantidadeMesas())
-                    .mapToObj(numero -> Mesa.builder()
-                        .numeroMesa(numero)
-                        .setor(SetorMesa.values()[(numero - 1) % SetorMesa.values().length])
-                        .evento(evento)
-                        .build())
-                    .toList());
-            }
         };
+    }
+
+    private boolean isDatabaseResetEnabled() {
+        return Boolean.parseBoolean(System.getenv().getOrDefault("RESET_DATABASE_ON_START", "false"));
+    }
+
+    @Bean
+    DatabaseResetter databaseResetter(JdbcTemplate jdbcTemplate) {
+        return new DatabaseResetter(jdbcTemplate);
+    }
+
+    static class DatabaseResetter {
+
+        private final JdbcTemplate jdbcTemplate;
+
+        DatabaseResetter(JdbcTemplate jdbcTemplate) {
+            this.jdbcTemplate = jdbcTemplate;
+        }
+
+        @Transactional
+        void reset() {
+            jdbcTemplate.execute("delete from reserva_datas");
+            jdbcTemplate.execute("delete from reservas");
+            jdbcTemplate.execute("delete from mesas");
+            jdbcTemplate.execute("delete from eventos");
+            jdbcTemplate.execute("delete from usuarios");
+        }
     }
 }

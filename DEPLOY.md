@@ -38,6 +38,26 @@ https://reserva-mesas-api.onrender.com/api
 
 Use essa URL como `API_URL` no frontend da Vercel.
 
+## Zerar base no Render uma unica vez
+
+Para limpar a base e recriar somente o administrador, adicione temporariamente no Render:
+
+```text
+RESET_DATABASE_ON_START=true
+ADMIN_EMAIL=admin@reservas.com
+ADMIN_PASSWORD=sua-senha-admin
+```
+
+Depois faca um deploy do backend. Quando a aplicacao subir, ela apaga reservas, mesas, eventos e usuarios, e cria apenas o admin.
+
+Em seguida, remova `RESET_DATABASE_ON_START` ou troque para:
+
+```text
+RESET_DATABASE_ON_START=false
+```
+
+Faca outro deploy. Nao deixe `RESET_DATABASE_ON_START=true`, porque a base sera apagada novamente em todo restart ou deploy.
+
 ## Backend + PostgreSQL com Docker
 
 Copie o exemplo de variaveis:
