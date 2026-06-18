@@ -39,13 +39,6 @@
         <input class="form-control" type="text" formControlName="blocoApartamento" placeholder="Ex: Bloco A - Apto 101">
       </label>
 
-      <label>
-        <span>Qual setor gostaria de comprar a sua mesa? *</span>
-        <select class="form-select" formControlName="setorMesa">
-          <option *ngFor="let setor of setores" [value]="setor">{{ setor }}</option>
-        </select>
-      </label>
-
       <p *ngIf="mensagem" class="alert alert-danger">{{ mensagem }}</p>
 
       <button type="submit" class="btn btn-primary w-100" [disabled]="salvando">

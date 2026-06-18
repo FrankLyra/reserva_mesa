@@ -14,7 +14,7 @@ public record RegisterRequest(
     @NotBlank String telefone,
     @NotNull TipoUsuario tipoUsuario,
     String blocoApartamento,
-    @NotNull SetorMesa setorMesa,
+    SetorMesa setorMesa,
     Role role
 ) {
 }

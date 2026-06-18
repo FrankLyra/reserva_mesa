@@ -11,7 +11,7 @@ export interface RegisterRequest {
   telefone: string;
   tipoUsuario: TipoUsuario;
   blocoApartamento?: string;
-  setorMesa: SetorMesa;
+  setorMesa?: SetorMesa;
 }
 
 export interface EventoRequest {

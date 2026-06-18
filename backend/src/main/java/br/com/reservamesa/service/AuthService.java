@@ -5,6 +5,7 @@ import br.com.reservamesa.api.dto.AuthResponse;
 import br.com.reservamesa.api.dto.RegisterRequest;
 import br.com.reservamesa.domain.entity.Usuario;
 import br.com.reservamesa.domain.enums.Role;
+import br.com.reservamesa.domain.enums.SetorMesa;
 import br.com.reservamesa.domain.enums.TipoUsuario;
 import br.com.reservamesa.repository.UsuarioRepository;
 import br.com.reservamesa.security.JwtService;
@@ -48,7 +49,7 @@ public class AuthService {
             .telefone(request.telefone())
             .tipoUsuario(request.tipoUsuario())
             .blocoApartamento(request.blocoApartamento())
-            .setorMesa(request.setorMesa())
+            .setorMesa(request.setorMesa() == null ? SetorMesa.AMARELO : request.setorMesa())
             .role(request.role() == null ? Role.USER : request.role())
             .build();
         usuarioRepository.save(usuario);

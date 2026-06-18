@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { SetorMesa, TipoUsuario } from '../../core/api.types';
+import { TipoUsuario } from '../../core/api.types';
 import { AuthApiService } from '../../core/auth-api.service';
 
 @Component({
@@ -19,7 +19,6 @@ export class CadastroComponent {
 
   mensagem = '';
   salvando = false;
-  setores: SetorMesa[] = ['AMARELO', 'VERMELHO', 'AZUL', 'VERDE'];
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -27,8 +26,7 @@ export class CadastroComponent {
     nome: ['', [Validators.required]],
     telefone: ['', [Validators.required]],
     tipoUsuario: ['MORADOR' as TipoUsuario, [Validators.required]],
-    blocoApartamento: ['', [Validators.required]],
-    setorMesa: ['AMARELO' as SetorMesa, [Validators.required]]
+    blocoApartamento: ['', [Validators.required]]
   });
 
   tipoUsuario(): TipoUsuario {

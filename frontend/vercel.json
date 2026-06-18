@@ -1,4 +1,8 @@
 {
+  "framework": "angular",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/reserva-mesas-frontend/browser",
   "rewrites": [
     {
       "source": "/(.*)",
