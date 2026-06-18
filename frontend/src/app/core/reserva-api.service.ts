@@ -27,6 +27,10 @@ export class ReservaApiService {
     return this.http.post<Evento>(`${this.apiUrl}/admin/eventos`, request);
   }
 
+  excluirEvento(eventoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/admin/eventos/${eventoId}`);
+  }
+
   listarReservasAdmin(): Observable<AdminReservaResponse[]> {
     return this.http.get<AdminReservaResponse[]>(`${this.apiUrl}/admin/reservas`);
   }

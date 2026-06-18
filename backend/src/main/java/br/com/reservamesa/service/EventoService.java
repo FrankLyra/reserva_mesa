@@ -8,6 +8,7 @@ import br.com.reservamesa.domain.entity.Mesa;
 import br.com.reservamesa.domain.enums.SetorMesa;
 import br.com.reservamesa.repository.EventoRepository;
 import br.com.reservamesa.repository.MesaRepository;
+import br.com.reservamesa.repository.ReservaRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,12 @@ public class EventoService {
 
     private final EventoRepository eventoRepository;
     private final MesaRepository mesaRepository;
+    private final ReservaRepository reservaRepository;
 
-    public EventoService(EventoRepository eventoRepository, MesaRepository mesaRepository) {
+    public EventoService(EventoRepository eventoRepository, MesaRepository mesaRepository, ReservaRepository reservaRepository) {
         this.eventoRepository = eventoRepository;
         this.mesaRepository = mesaRepository;
+        this.reservaRepository = reservaRepository;
     }
 
     @Transactional
@@ -50,6 +53,14 @@ public class EventoService {
     @Transactional(readOnly = true)
     public List<EventoResponse> listar() {
         return eventoRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        Evento evento = buscarEntidade(id);
+        reservaRepository.deleteAll(reservaRepository.findByMesaEventoId(id));
+        mesaRepository.deleteAll(mesaRepository.findByEventoIdOrderByNumeroMesa(id));
+        eventoRepository.delete(evento);
     }
 
     @Transactional(readOnly = true)

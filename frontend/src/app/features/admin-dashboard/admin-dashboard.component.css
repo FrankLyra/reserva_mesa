@@ -84,6 +84,13 @@ dt {
   padding: 10px;
 }
 
+.sector-summary {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
 .sector-amarelo {
   border-color: #d8a500;
 }
@@ -111,6 +118,13 @@ dt {
   padding: 14px;
 }
 
+.event-item header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .event-item dl {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -134,5 +148,10 @@ dd {
   .event-item dl,
   .sector-grid {
     grid-template-columns: 1fr;
+  }
+
+  .event-item header {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

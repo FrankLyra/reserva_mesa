@@ -40,13 +40,17 @@
       <div class="date-grid">
         <label>
           <span>Total de mesas</span>
-          <input class="form-control" type="number" [value]="totalMesasSetores()" disabled>
+          <input class="form-control" type="number" min="1" formControlName="quantidadeMesas">
         </label>
         <label>
           <span>Preco por dia</span>
           <input class="form-control" type="number" min="0.01" step="0.01" formControlName="precoPorDia">
         </label>
       </div>
+
+      <p class="sector-summary" [class.text-danger]="!distribuicaoBateComTotal()">
+        Distribuidas: {{ totalMesasSetores() }} de {{ form.controls.quantidadeMesas.value }} mesas
+      </p>
 
       <div class="sector-grid">
         <label class="sector-field sector-amarelo">
@@ -87,10 +91,18 @@
       </div>
 
       <article *ngFor="let evento of eventos" class="event-item">
-        <div>
-          <h3>{{ evento.nome }}</h3>
-          <p>{{ evento.descricao }}</p>
-        </div>
+        <header>
+          <div>
+            <h3>{{ evento.nome }}</h3>
+            <p>{{ evento.descricao }}</p>
+          </div>
+          <button type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  [disabled]="excluindoEventoId === evento.id"
+                  (click)="excluirEvento(evento)">
+            {{ excluindoEventoId === evento.id ? 'Excluindo...' : 'Excluir' }}
+          </button>
+        </header>
         <dl>
           <div>
             <dt>Periodo</dt>

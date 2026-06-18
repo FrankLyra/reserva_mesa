@@ -16,6 +16,8 @@ import jakarta.persistence.LockModeType;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
 
+    List<Reserva> findByMesaEventoId(Long eventoId);
+
     @Query("""
         select distinct r
         from Reserva r

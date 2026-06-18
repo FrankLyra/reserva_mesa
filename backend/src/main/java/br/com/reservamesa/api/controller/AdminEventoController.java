@@ -5,6 +5,8 @@ import br.com.reservamesa.api.dto.EventoResponse;
 import br.com.reservamesa.service.EventoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,5 +27,11 @@ public class AdminEventoController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventoResponse criar(@Valid @RequestBody EventoRequest request) {
         return eventoService.criar(request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        eventoService.excluir(id);
     }
 }

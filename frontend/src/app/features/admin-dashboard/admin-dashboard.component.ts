@@ -22,6 +22,7 @@ export class AdminDashboardComponent implements OnInit {
   eventos: Evento[] = [];
   mensagem = '';
   salvando = false;
+  excluindoEventoId: number | null = null;
 
   form = this.fb.nonNullable.group({
     nome: ['', [Validators.required]],
@@ -55,6 +56,11 @@ export class AdminDashboardComponent implements OnInit {
       return;
     }
 
+    if (!this.distribuicaoBateComTotal()) {
+      this.mensagem = 'A soma das mesas por setor deve ser igual ao total de mesas.';
+      return;
+    }
+
     this.salvando = true;
     this.mensagem = '';
     const valores = this.form.getRawValue();
@@ -63,7 +69,7 @@ export class AdminDashboardComponent implements OnInit {
       dataInicio: valores.dataInicio,
       dataFim: valores.dataFim,
       descricao: valores.descricao,
-      quantidadeMesas: this.totalMesasSetores(),
+      quantidadeMesas: valores.quantidadeMesas,
       setores: {
         amarelo: valores.amarelo,
         vermelho: valores.vermelho,
@@ -106,6 +112,31 @@ export class AdminDashboardComponent implements OnInit {
   totalMesasSetores(): number {
     const valores = this.form.getRawValue();
     return valores.amarelo + valores.vermelho + valores.azul + valores.verde;
+  }
+
+  distribuicaoBateComTotal(): boolean {
+    return this.form.controls.quantidadeMesas.value === this.totalMesasSetores();
+  }
+
+  excluirEvento(evento: Evento): void {
+    const confirmado = confirm(`Excluir o evento "${evento.nome}"? As mesas e reservas desse evento tambem serao excluidas.`);
+    if (!confirmado) {
+      return;
+    }
+
+    this.excluindoEventoId = evento.id;
+    this.mensagem = '';
+    this.reservaApi.excluirEvento(evento.id).subscribe({
+      next: () => {
+        this.eventos = this.eventos.filter(item => item.id !== evento.id);
+        this.excluindoEventoId = null;
+        this.mensagem = 'Evento excluido com sucesso.';
+      },
+      error: () => {
+        this.excluindoEventoId = null;
+        this.mensagem = 'Nao foi possivel excluir o evento.';
+      }
+    });
   }
 
   sair(): void {
